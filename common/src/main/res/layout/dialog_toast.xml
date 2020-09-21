@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:paddingHorizontal="16dp"
+    android:paddingVertical="8dp"
+    android:gravity="center"
+    android:background="@drawable/dialog_toast_bg">
+
+    <TextView
+
+        android:id="@+id/tv_toast_msg"
+        android:maxWidth="200dp"
+        android:text="当前已是最新版本"
+        android:textColor="#5f5f5f"
+        android:textSize="12sp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"/>
+</LinearLayout>

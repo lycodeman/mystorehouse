@@ -1,0 +1,10 @@
+//http://10.9.0.67:8686/lomsV5-web/mobile/download/inspector20200821110051_apk
+//https://download.sj.qq.com/upload/connAssitantDownload/upload/MobileAssistant_1.apk
+
+针对文件下载进行封装
+
+支持断点下载
+
+断点数据保存采用room数据库
+
+下载使用retrofit okhttp 支持多线程现在，以及线程回调切换

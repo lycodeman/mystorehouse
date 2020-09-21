@@ -1,0 +1,25 @@
+导入常用的三方库，
+
+mvp模式使用的时候参照JokeListActivity 需要导入dagger包
+在使用的时候需要集成app 的module自行依赖相关注解包
+
+adapter地址
+https://github.com/CymChad/BaseRecyclerViewAdapterHelper
+
+SmartRefreshLayout刷新控件地址
+https://github.com/scwang90/SmartRefreshLayout
+
+GSYVideoPlayer视频播放
+https://github.com/CarGuo/GSYVideoPlayer
+
+ShadowLayout阴影库
+https://github.com/lihangleo2/ShadowLayout
+
+android 注解
+https://github.com/androidannotations/androidannotations/wiki/AvailableAnnotations
+
+AndroidUtilsCode android相关工具包
+https://github.com/Blankj/AndroidUtilCode/blob/master/lib/utilcode/README-CN.md
+
+侧滑删除，侧滑菜单，拖拽功能的rv
+https://github.com/yanzhenjie/SwipeRecyclerView

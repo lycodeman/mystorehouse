@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/rootview"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical">
+
+    <Button
+        android:id="@+id/bt_info_one"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="原滋原味 不适配时 屏幕信息展示" />
+
+    <Button
+        android:id="@+id/bt_info_two"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="AutoSize 屏幕有toolbar信息展示" />
+
+    <Button
+        android:id="@+id/bt_info_three"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="AutoSize 屏幕没有toolbar展示" />
+
+    <Button
+        android:id="@+id/bt_info_four"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="AutoSize 不使用360dp，使用676dp适配" />
+
+    <Button
+        android:id="@+id/bt_info_five"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="使用像素限定符适配" />
+
+    <Button
+        android:id="@+id/bt_info_sixe"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="百分比适配" />
+
+    <Button
+        android:id="@+id/bt_info_seven"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="自定义relaytivelayout适配" />
+
+    <Button
+        android:id="@+id/bt_info_8"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="自定义linearlayout适配" />
+
+    <Button
+        android:id="@+id/bt_info_9"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="AutoLayout适配" />
+
+    <Button
+        android:id="@+id/bt_info_10"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="今日头条适配" />
+
+    <Button
+        android:id="@+id/bt_info_11"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="最小宽度限定符适配" />
+
+</LinearLayout>

@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.core.widget.NestedScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:paddingTop="@dimen/dp_10">
+
+            <ProgressBar
+                android:id="@+id/pb_total_download"
+                android:layout_width="match_parent"
+                android:layout_height="2dp"
+                android:progress="0"
+                style="?android:attr/progressBarStyleHorizontal"
+                android:max="100"/>
+
+            <LinearLayout
+                android:layout_marginTop="@dimen/dp_10"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal">
+
+                <Button
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="暂停"
+                    android:id="@+id/tv_pause"/>
+
+                <Button
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="开始"
+                    android:id="@+id/tv_start"/>
+
+                <Button
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="取消"
+                    android:id="@+id/tv_cancle"/>
+
+                <EditText
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="1"
+                    android:hint="请输入线程数"
+                    android:inputType="number"
+                    android:id="@+id/et_thread_count"/>
+            </LinearLayout>
+        </LinearLayout>
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:id="@+id/rv_download"
+            tools:itemCount="2"
+            app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
+            tools:listitem="@layout/item_rv_download"/>
+
+        <Button
+            android:id="@+id/bt_show_only_total"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="展示监听全局的下载"/>
+
+        <Button
+            android:id="@+id/bt_show_every_single"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="展示监听每个子任务的下载"/>
+
+        <Button
+            android:id="@+id/bt_show_not_all_single"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="展示监听部分子任务的下载"/>
+
+        <Button
+            android:id="@+id/bt_show_all_task"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="展示监听全局和子任务的下载"/>
+
+    </LinearLayout>
+
+</androidx.core.widget.NestedScrollView>

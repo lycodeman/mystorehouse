@@ -1,0 +1,138 @@
+apply from: 'common-config.gradle'
+if (isModule) {
+    apply plugin: 'com.android.application'
+} else {
+    apply plugin: 'com.android.library'
+}
+apply plugin: 'kotlin-android'
+apply plugin: 'kotlin-android-extensions'
+apply plugin: 'kotlin-kapt'
+
+android {
+    compileSdkVersion 30
+    buildToolsVersion "30.0.1"
+
+    defaultConfig {
+        if (isModule) {
+            //组件模式下设置applicationId
+            applicationId "com.example.common"
+        }
+        minSdkVersion 19
+        targetSdkVersion 30
+        versionCode 1
+        versionName "1.0"
+
+        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+
+        //room 配置导出记录
+//        javaCompileOptions {
+//            annotationProcessorOptions {
+//                //room的数据库概要、记录
+//                arguments = ["room.schemaLocation":
+//                                     "$projectDir/schemas".toString()]
+//            }
+//        }
+    }
+
+    buildTypes {
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+        }
+    }
+
+    compileOptions {
+        sourceCompatibility 1.8
+        targetCompatibility 1.8
+    }
+
+    sourceSets {
+        main {
+            //控制两种模式下的资源和代码配置情况
+            if (isModule) {
+                manifest.srcFile 'src/main/module/AndroidManifest.xml'
+            } else {
+                manifest.srcFile 'src/main/AndroidManifest.xml'
+            }
+        }
+    }
+}
+
+dependencies {
+    implementation fileTree(dir: "libs", include: ["*.jar"])
+    implementation "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
+    implementation 'androidx.core:core-ktx:1.3.1'
+    implementation 'androidx.appcompat:appcompat:1.2.0'
+
+    api files('libs\\adapter-rxjava3-2.9.0.jar')
+
+    api thirdPart["rxjava3"]
+    api thirdPart["rxandroid"]
+    api thirdPart["retrofit"]
+//    api thirdPart["rxjava2Adapter"]
+    api thirdPart["converterGson"]
+    api thirdPart["rxlifecycle"]
+    api thirdPart["rxlifecycleAndroid"]
+    api thirdPart["rxlifecycleComponents"]
+    //放置基类爆红
+    api thirdPart["lifecycleExtensions"]
+    api thirdPart["lifecycleRuntime"]
+    api(thirdPart["rxbinding"]) {
+    }
+    api thirdPart["logger"]
+    api thirdPart["dagger"]
+    //需要宿主自行依赖
+//    kapt thirdPart['daggerCompiler']
+    api thirdPart["gson"]
+    api thirdPart["gSYVideoPlayer"]
+    api thirdPart["rvAdapter"]
+
+    api thirdPart["design"]
+    api thirdPart["recyclerview"]
+    api thirdPart["cardview"]
+    api thirdPart["smart"]
+    api thirdPart["headerClassics"]
+    api thirdPart["constraintLayout"]
+    api thirdPart["shadowLayout"]
+
+    //网络请求 数据库 sp 调试
+    api thirdPart["stetho"]
+    api thirdPart["stethoOkhttp3"]
+
+    //权限
+    api thirdPart["permissionsdispatcher"]
+    //需要宿主自行依赖
+//    kapt thirdPart["permissionsdispatcherProcessor"]
+    //网络日志
+    debugApi thirdPart["chuckDebug"]
+    releaseApi thirdPart["chuckRelease"]
+    //glide
+    api thirdPart["glide"]
+    api thirdPart["glideProcessor"]
+    //viewpager2
+    api thirdPart["viewpager2"]
+    api 'androidx.viewpager2:viewpager2:1.1.0-alpha01'
+
+    //android 注解
+    api thirdPart["androidannotationsApi"]
+    //需要宿主自行依赖
+//    kapt thirdPart["androidannotations"]
+
+    api thirdPart["utilcode"]
+
+//    implementation 'com.yanzhenjie.recyclerview:x:1.3.2'
+
+    //导航
+    api(thirdPart["navigationFragmentKtx"])
+    api(thirdPart["navigationUiKtx"])
+
+    //mmkv
+    api 'com.tencent:mmkv-static:1.2.2'
+
+    //room 数据库
+//    api 'androidx.room:room-rxjava3:2.2.5'
+//    api 'androidx.room:room-runtime:2.2.5'
+
+
+
+}

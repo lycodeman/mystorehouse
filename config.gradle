@@ -1,0 +1,22 @@
+ext {
+    android = [
+            compileSdkVersion: 30,
+            buildToolsVersion: '30.0.1',
+            applicationId    : "com.example.mystorehouse",
+            minSdkVersion    : 16,
+            targetSdkVersion : 30,
+            versionCode      : 1,
+            versionName      : "1.0.0"
+    ]
+
+    isModule = false
+
+    //三方配置
+    thirdPart = [
+            daggerCompiler                : 'com.google.dagger:dagger-compiler:2.11',
+            permissionsdispatcherProcessor: 'org.permissionsdispatcher:permissionsdispatcher-processor:4.7.0',
+            androidannotations            : "org.androidannotations:androidannotations:4.7.0",
+    ]
+
+
+}

@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/screen_adapter_nav"
+    app:startDestination="@id/screenInfoFragment"
+    tools:ignore="UnusedNavigation">
+
+    <fragment
+        android:id="@+id/screenInfoFragment"
+        android:name="com.example.mystorehouse.screenadapter.ScreenInfoFragment"
+        android:label="ScreenInfoFragment" />
+    <fragment
+        android:id="@+id/screenInfoTwoFragment"
+        android:name="com.example.mystorehouse.screenadapter.ScreenInfoTwoFragment"
+        android:label="ScreenInfoTwoFragment" />
+    <fragment
+        android:id="@+id/screenInfoThreeFragment"
+        android:name="com.example.mystorehouse.screenadapter.ScreenInfoThreeFragment"
+        android:label="ScreenInfoThreeFragment" />
+    <fragment
+        android:id="@+id/screenInfoFourFragment"
+        android:name="com.example.mystorehouse.screenadapter.ScreenInfoFourFragment"
+        android:label="ScreenInfoFourFragment" />
+    <fragment
+        android:id="@+id/screenInfoFiveFragment"
+        android:name="com.example.mystorehouse.screenadapter.ScreenInfoFiveFragment"
+        android:label="ScreenInfoFiveFragment" />
+    <fragment
+        android:id="@+id/screenInfoSixeFragment"
+        android:name="com.example.mystorehouse.screenadapter.ScreenInfoSixFragment"
+        android:label="ScreenInfoSixeFragment" />
+    <fragment
+        android:id="@+id/screenInfoSevenFragment"
+        android:name="com.example.mystorehouse.screenadapter.ScreenInfoSevenFragment"
+        android:label="ScreenInfoSixeFragment" />
+    <fragment
+        android:id="@+id/screenInfo8Fragment"
+        android:name="com.example.mystorehouse.screenadapter.ScreenInfo8Fragment"
+        android:label="ScreenInfo8Fragment" />
+    <fragment
+        android:id="@+id/screenInfo9Fragment"
+        android:name="com.example.mystorehouse.screenadapter.ScreenInfo9Fragment"
+        android:label="ScreenInfo9Fragment" />
+    <fragment
+        android:id="@+id/screenInfo10Fragment"
+        android:name="com.example.mystorehouse.screenadapter.ScreenInfo10Fragment"
+        android:label="ScreenInfo10Fragment" />
+</navigation>
