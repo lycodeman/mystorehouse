@@ -16,4 +16,5 @@ interface SingleTaskCallBack {
     )
     fun downloadFail(errorMsg: String)
     fun downloadCancle()
+    fun downloadPause()
 }

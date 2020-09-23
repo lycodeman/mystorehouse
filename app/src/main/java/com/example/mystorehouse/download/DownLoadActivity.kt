@@ -90,7 +90,7 @@ class DownLoadActivity : BaseEmptyActivity() {
                 .threadCount(et_thread_count.text.toString().toInt())
                 .build()
             totalTask?.addTotalTaskCallBack(taskCallBack)
-            totalTask?.excuteTask()
+            totalTask?.excuteTask(true)
         }
         //所有进度
         bt_show_all_task.setOnClickListener { }

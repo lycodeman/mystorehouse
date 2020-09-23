@@ -13,6 +13,6 @@ interface BaseTask {
 
     fun createThread() : Thread
 
-    fun createThread(threadName: String) : Thread
+    fun excute()
 
 }

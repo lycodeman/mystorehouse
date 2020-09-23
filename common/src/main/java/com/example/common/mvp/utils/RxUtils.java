@@ -99,6 +99,13 @@ public class RxUtils {
     }
 
     /*默认线程转换*/
+    public static <T> ObservableTransformer<T, T> io() {
+        return upstream -> upstream
+                .subscribeOn(Schedulers.io())
+                .observeOn(Schedulers.io());
+    }
+
+    /*默认线程转换*/
     public static <T> ObservableTransformer<T, T> defaultTransformer() {
         return upstream -> upstream
                 .subscribeOn(Schedulers.io())
