@@ -1,14 +1,10 @@
 package com.example.common.download
 
-import android.text.TextUtils
-import com.example.common.download.callback.SingleTaskCallBack
-import com.example.common.download.callback.TotalTaskCallBackImp
 import com.example.common.download.executor.ExecutorManager
 import com.example.common.download.task.TotalTask
 import com.example.common.mvp.utils.RxUtils
 import io.reactivex.rxjava3.core.Observable
 import io.reactivex.rxjava3.core.ObservableOnSubscribe
-import java.lang.IllegalArgumentException
 
 /**
  *     Author : 李勇

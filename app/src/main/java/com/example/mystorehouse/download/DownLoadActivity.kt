@@ -5,8 +5,10 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import com.chad.library.adapter.base.BaseQuickAdapter
 import com.chad.library.adapter.base.viewholder.BaseViewHolder
 import com.example.common.download.Constants
+import com.example.common.download.callback.SubTaskCallBack
+import com.example.common.download.callback.SubTaskCallBackImp
 import com.example.common.download.callback.TotalTaskCallBackImp
-import com.example.common.download.task.SingleTask
+import com.example.common.download.data.SubTaskData
 import com.example.common.download.task.TotalTask
 
 import com.example.common.mvp.base.BaseEmptyActivity
@@ -38,14 +40,16 @@ class DownLoadActivity : BaseEmptyActivity() {
     }
 
     private val baseQuickAdapter =
-        object : BaseQuickAdapter<SingleTask, BaseViewHolder>(R.layout.item_rv_download) {
-            override fun convert(holder: BaseViewHolder, item: SingleTask) {
+        object : BaseQuickAdapter<SubTaskData, BaseViewHolder>(R.layout.item_rv_download) {
+            override fun convert(holder: BaseViewHolder, item: SubTaskData) {
                 holder.itemView.tv_start.setOnClickListener { }
                 holder.itemView.tv_pause.setOnClickListener { }
                 holder.itemView.tv_cancle.setOnClickListener { }
                 //展示单个任务的进度
-                holder.itemView.pb_download.progress =
-                    (item.singleTaskData.downloadSize / item.singleTaskData.totalSize).toInt()
+                if (item.totalSize != 0L){
+                    holder.itemView.pb_download.progress =
+                        (item.downloadSize / item.totalSize*100).toInt()
+                }
             }
         }
 
@@ -95,7 +99,70 @@ class DownLoadActivity : BaseEmptyActivity() {
         //所有进度
         bt_show_all_task.setOnClickListener { }
         //只展示每个子任务
-        bt_show_every_single.setOnClickListener { }
+        bt_show_every_single.setOnClickListener {
+            var threadCount = et_thread_count.text.toString().toInt()
+            baseQuickAdapter.data.clear()
+            baseQuickAdapter.notifyDataSetChanged()
+
+            val taskCallBack = object : TotalTaskCallBackImp() {
+                override fun downloadSuccess(filePtah: String) {
+                    showToast("文件${filePtah}下载完成！")
+                    hideProgress()
+                }
+
+                override fun downloading(progress: Float) {
+                    pb_total_download.progress = (progress * 100).toInt()
+                    Log.e(TAG, "downloading: progress: $progress")
+                }
+
+                override fun downloadFail(errorMsg: String) {
+                    showToast(errorMsg)
+                }
+
+                override fun startDownload() {
+                    showProgress("开始下载")
+                }
+
+                override fun onFileContentLength(contentLength: Long) {
+                    super.onFileContentLength(contentLength)
+
+
+                }
+            }
+            var subTaskCalls = mutableListOf<SubTaskCallBack>()
+            for (i in 1..threadCount) {
+                baseQuickAdapter.addData(SubTaskData(startPos = 0,endPos = 0))
+                val subCallBack = object : SubTaskCallBackImp() {
+                    override fun downloadSuccess(filePath: String) {
+                        super.downloadSuccess(filePath)
+
+                    }
+
+                    override fun downloadCancle() {
+                        super.downloadCancle()
+
+                    }
+
+                    override fun downloading(length: Float, subTaskData: SubTaskData,progress: Float) {
+                        super.downloading(length, subTaskData,progress)
+                        baseQuickAdapter.setData(i,subTaskData)
+                        baseQuickAdapter.notifyDataSetChanged()
+                        Log.i(TAG, "downloading: ${length/subTaskData.totalSize}")
+                        Log.i(TAG, "downloading: ${length} + ${subTaskData.downloadSize} + ${subTaskData.totalSize}")
+                        Log.i(TAG, "downloading: $progress")
+                    }
+                }
+                subTaskCalls.add(subCallBack)
+            }
+            totalTask = TotalTask.Builder()
+                .filePath(this.externalCacheDir?.absolutePath ?: "")
+                .threadCount(threadCount)
+                .fileName("腾讯app.apk")
+                .url(Constants.BASE_URL + Constants.MOBILE_ASSISTANT_PATH)
+                .threadCount(et_thread_count.text.toString().toInt())
+                .build()?.addSingleTaskCallBack(subTaskCalls)?.addTotalTaskCallBack(taskCallBack)
+            totalTask?.excuteTask(true)
+        }
         //不完全展示所有任务
         bt_show_not_all_single.setOnClickListener {
 

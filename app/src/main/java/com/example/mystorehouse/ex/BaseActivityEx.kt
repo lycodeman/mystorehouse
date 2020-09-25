@@ -62,12 +62,12 @@ class ProgressDialogUtils private constructor(){
         return mProgressDialog!!
     }
 }
-val <P :  RxPresenter<*,*>> BaseActivity<P>.mProgressDialog: CustomProgressDialog?
+val RxAppCompatActivity.mProgressDialog: CustomProgressDialog?
     get() {
         return ProgressDialogUtils.instance.getProgressDialog(this)
     }
 
-fun <P :  RxPresenter<*,*>> BaseActivity<P>.showProgress(msg: String){
+fun RxAppCompatActivity.showProgress(msg: String){
     try {
         mProgressDialog?.run {
             if (!this.isShowing) {
@@ -86,7 +86,7 @@ fun <P :  RxPresenter<*,*>> BaseActivity<P>.showProgress(msg: String){
     }
 }
 
-fun <P :  RxPresenter<*,*>> BaseActivity<P>.hideProgress(){
+fun RxAppCompatActivity.hideProgress(){
     try {
         mProgressDialog?.run {
             if (this.isShowing) {

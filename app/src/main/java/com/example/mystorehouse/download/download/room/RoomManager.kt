@@ -2,10 +2,9 @@ package com.example.common.download.room
 
 import android.util.Log
 import com.blankj.utilcode.util.FileUtils
-import com.example.common.download.data.SingleTaskData
+import com.example.common.download.data.SubTaskData
 import com.example.common.download.data.TotalTaskData
 import com.example.common.download.data.getTaskPath
-import com.example.common.download.task.TotalTask
 import com.tencent.mmkv.MMKV
 import java.io.File
 
@@ -23,7 +22,7 @@ object RoomManager {
         return MMKV.mmkvWithID("download_file")
     }
 
-    fun saveOrUpdateDownloadTask(singleTaskData: SingleTaskData) {
+    fun saveOrUpdateDownloadTask(singleTaskData: SubTaskData) {
         //将下载的参数 存入数据库
         Log.e(TAG, "saveOrUpdateDownloadTask: cancle thread" )
         //存储下载的进度
@@ -73,13 +72,13 @@ object RoomManager {
     /**
      * 获取所有子任务数据
      */
-    fun getAllSubTaskData(filePath: String): MutableList<SingleTaskData?> {
-        var subTaskList = mutableListOf<SingleTaskData?>()
+    fun getAllSubTaskData(filePath: String): MutableList<SubTaskData?> {
+        var subTaskList = mutableListOf<SubTaskData?>()
         getCacheTaskData(filePath)?.run {
             if (threadCount>0){
                 for (i in 0 until threadCount) {
                     var subTaskData = getMMKVInstance()?.decodeParcelable(
-                        FileUtils.getFileMD5ToString(filePath+ "_sub_$i"),SingleTaskData::class.java)
+                        FileUtils.getFileMD5ToString(filePath+ "_sub_$i"),SubTaskData::class.java)
                     subTaskList.add(subTaskData)
                 }
 
@@ -105,17 +104,17 @@ object RoomManager {
     /**
      * 缓存子任务数据
      */
-    fun savSubTaskData(subTaskData:SingleTaskData){
+    fun savSubTaskData(subTaskData:SubTaskData){
         getMMKVInstance()?.encode(
             FileUtils.getFileMD5ToString(subTaskData.getTaskPath()),subTaskData)
     }
 
-    fun getSubTaskData(filePath:String):SingleTaskData?{
+    fun getSubTaskData(filePath:String):SubTaskData?{
         return getMMKVInstance()?.decodeParcelable(
-            FileUtils.getFileMD5ToString(filePath),SingleTaskData::class.java)
+            FileUtils.getFileMD5ToString(filePath),SubTaskData::class.java)
     }
 
-    fun removeSubTaskData(subTaskData:SingleTaskData){
+    fun removeSubTaskData(subTaskData:SubTaskData){
         getMMKVInstance()?.removeValueForKey(
             FileUtils.getFileMD5ToString(subTaskData.filePath+ "_sub_${subTaskData.taskNum}"))
     }
@@ -123,7 +122,7 @@ object RoomManager {
     /**
      * 缓存所有子任务数据
      */
-    fun savAllSubTaskData(subTaskDatas:MutableList<SingleTaskData>){
+    fun savAllSubTaskData(subTaskDatas:MutableList<SubTaskData>){
         for (subTaskData in subTaskDatas) {
             savSubTaskData(subTaskData)
         }

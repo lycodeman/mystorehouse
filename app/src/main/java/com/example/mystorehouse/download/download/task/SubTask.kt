@@ -3,8 +3,8 @@ package com.example.common.download.task
 import com.example.common.download.Constants
 import com.example.common.download.RequestManager
 import com.example.common.download.api.DownloadApi
-import com.example.common.download.callback.SingleTaskCallBack
-import com.example.common.download.data.SingleTaskData
+import com.example.common.download.callback.SubTaskCallBack
+import com.example.common.download.data.SubTaskData
 import com.example.common.download.room.RoomManager
 import java.io.File
 import java.io.InputStream
@@ -13,80 +13,83 @@ import java.io.RandomAccessFile
 /**
  *     Author : 李勇
  *     Create Time   : 2020/09/17
- *     Desc   : 下载任务
+ *     Desc   : 下载子任务
  *     PackageName: com.example.common.download.task
  */
-class SingleTask() : BaseTask {
-    lateinit var singleTaskData: SingleTaskData
-    private var singleTaskCallBack: SingleTaskCallBack? = null
+class SubTask() : BaseTask {
+    lateinit var subTaskData: SubTaskData
+    private var subTaskCallBack: SubTaskCallBack? = null
     private var TAG = "SingleTask"
 
-    fun addSingleTaskCallBack(singleTaskCallBack: SingleTaskCallBack?) {
-        this.singleTaskCallBack = singleTaskCallBack
+    fun addSubTaskCallBack(subTaskCallBack: SubTaskCallBack?) {
+        this.subTaskCallBack = subTaskCallBack
     }
 
-    constructor(singleTaskData: SingleTaskData) : this() {
-        this.singleTaskData = singleTaskData
+    constructor(singleTaskData: SubTaskData) : this() {
+        this.subTaskData = singleTaskData
     }
 
     @Volatile
     var isPause = false
+
     @Volatile
     var isCancle = false
+
     @Volatile
     var isFinish = false
 
     override fun createThread(): Thread {
-        var threadName = singleTaskData.fileName + "_" + singleTaskData.taskNum
+        var threadName = subTaskData.fileName + "_" + subTaskData.taskNum
         return Thread(Runnable {
             val downloadApi =
                 RequestManager.createRetrofit(Constants.BASE_URL).create(DownloadApi::class.java)
             downloadApi.downLoadFile(
                 Constants.MOBILE_ASSISTANT_PATH,
-                "bytes=" + singleTaskData.startPos.toString() + "-" + singleTaskData.endPos.toString()
+                "bytes=" + subTaskData.startPos.toString() + "-" + subTaskData.endPos.toString()
             )
                 .subscribe({ response ->
                     if (response?.byteStream() != null) {
                         val inputStream: InputStream = response?.byteStream()
-                        val file = File(singleTaskData.filePath, singleTaskData.fileName)
+                        val file = File(subTaskData.filePath, subTaskData.fileName)
                         var raf = RandomAccessFile(file, "rwd")
                         //找到上一次的点
-                        raf.seek(singleTaskData.startPos)
+                        raf.seek(subTaskData.startPos)
                         val bytes = ByteArray(1024 * 2)
                         var len: Int
                         while (inputStream.read(bytes).also { len = it } != -1) {
                             raf.write(bytes, 0, len)
                             //刷新进度
-                            singleTaskData.downloadSize = singleTaskData.downloadSize + len
-                            singleTaskCallBack?.downloading(
+                            subTaskData.downloadSize = subTaskData.downloadSize + len
+                            subTaskCallBack?.downloading(
                                 len.toFloat(),
-                                singleTaskData
+                                subTaskData,
+                                subTaskData.downloadSize / subTaskData.totalSize
                             )
                             //取消
-                            if (isCancle){
-                                singleTaskCallBack?.downloadCancle()
+                            if (isCancle) {
+                                subTaskCallBack?.downloadCancle()
                                 break
                             }
                             //暂停
                             if (isPause) {
-                                singleTaskCallBack?.downloadPause()
-                                RoomManager.saveOrUpdateDownloadTask(singleTaskData)
+                                subTaskCallBack?.downloadPause()
+                                RoomManager.saveOrUpdateDownloadTask(subTaskData)
                                 break
                             }
                         }
                         inputStream.close()
                         raf.close()
                         isFinish = true
-                        if (!isCancle && !isPause){
-                            singleTaskCallBack?.downloadSuccess(file.absolutePath)
+                        if (!isCancle && !isPause) {
+                            subTaskCallBack?.downloadSuccess(file.absolutePath)
                         }
                     } else {
                         throw RuntimeException("cannot get ResponseBody ")
                     }
                 }, {
-                    singleTaskCallBack?.downloadFail(
+                    subTaskCallBack?.downloadFail(
                         if (it.message != null)
-                            "任务${singleTaskData.taskNum},下载出错：" + it.message else "任务${singleTaskData.taskNum}下载失败！"
+                            "任务${subTaskData.taskNum},下载出错：" + it.message else "任务${subTaskData.taskNum}下载失败！"
                     )
                 })
         }, threadName)
@@ -98,44 +101,45 @@ class SingleTask() : BaseTask {
             RequestManager.createRetrofit(Constants.BASE_URL).create(DownloadApi::class.java)
         downloadApi.downLoadFile(
             Constants.MOBILE_ASSISTANT_PATH,
-            "bytes=" + singleTaskData.startPos.toString() + "-" + singleTaskData.endPos.toString()
+            "bytes=" + subTaskData.startPos.toString() + "-" + subTaskData.endPos.toString()
         )
             .subscribe({ response ->
                 if (response?.byteStream() != null) {
                     val inputStream: InputStream = response?.byteStream()
-                    val file = File(singleTaskData.filePath, singleTaskData.fileName)
+                    val file = File(subTaskData.filePath, subTaskData.fileName)
                     var raf = RandomAccessFile(file, "rwd")
                     //找到上一次的点
-                    raf.seek(singleTaskData.startPos)
+                    raf.seek(subTaskData.startPos)
                     val bytes = ByteArray(1024 * 2)
                     var len: Int
                     while (inputStream.read(bytes).also { len = it } != -1) {
                         raf.write(bytes, 0, len)
                         //保存下载的数据
-                        singleTaskData.downloadSize = singleTaskData.downloadSize + len
-                        singleTaskCallBack?.downloading(
+                        subTaskData.downloadSize = subTaskData.downloadSize + len
+                        subTaskCallBack?.downloading(
                             len.toFloat(),
-                            singleTaskData
+                            subTaskData,
+                            subTaskData.downloadSize / subTaskData.totalSize
                         )
 
                         //暂停
                         if (isPause) {
-                            singleTaskCallBack?.downloadCancle()
-                            RoomManager.saveOrUpdateDownloadTask(singleTaskData)
+                            subTaskCallBack?.downloadCancle()
+                            RoomManager.saveOrUpdateDownloadTask(subTaskData)
                             break
                         }
                     }
                     inputStream.close()
                     raf.close()
                     isFinish = true
-                    singleTaskCallBack?.downloadSuccess(file.absolutePath)
+                    subTaskCallBack?.downloadSuccess(file.absolutePath)
                 } else {
                     throw RuntimeException("cannot get ResponseBody ")
                 }
             }, {
-                singleTaskCallBack?.downloadFail(
+                subTaskCallBack?.downloadFail(
                     if (it.message != null)
-                        "任务${singleTaskData.taskNum},下载出错：" + it.message else "任务${singleTaskData.taskNum}下载失败！"
+                        "任务${subTaskData.taskNum},下载出错：" + it.message else "任务${subTaskData.taskNum}下载失败！"
                 )
             })
     }

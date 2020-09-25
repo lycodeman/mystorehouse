@@ -54,6 +54,7 @@ class ScreenInfoFragment : BaseEmptyFragment(),CancelAdapt {
                     屏幕密度：${ScreenUtils.getScreenDensity()}
                     屏幕densityDpi：${ScreenUtils.getScreenDensityDpi()} dp
                     虚拟按键高度：${ScreenUitls.getCurrentNavigationBarHeight(requireActivity())} px
+                    设置高度：320dp 设置宽度： 180dp
                 """.trimIndent()
                 }
         }

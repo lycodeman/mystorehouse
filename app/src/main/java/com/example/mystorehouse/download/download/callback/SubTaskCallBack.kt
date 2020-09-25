@@ -1,6 +1,6 @@
 package com.example.common.download.callback
 
-import com.example.common.download.data.SingleTaskData
+import com.example.common.download.data.SubTaskData
 
 /**
  *     Author : 李勇
@@ -8,11 +8,12 @@ import com.example.common.download.data.SingleTaskData
  *     Desc   : 单个任务下载回调监听
  *     PackageName: com.example.common.download
  */
-interface SingleTaskCallBack {
+interface SubTaskCallBack {
     fun downloadSuccess(filePath: String)
     fun downloading(
         length: Float,
-        singleTaskData: SingleTaskData
+        singleTaskData: SubTaskData,
+        progress: Float
     )
     fun downloadFail(errorMsg: String)
     fun downloadCancle()

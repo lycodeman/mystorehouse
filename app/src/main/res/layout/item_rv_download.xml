@@ -9,7 +9,7 @@
         android:id="@+id/pb_download"
         android:layout_width="match_parent"
         android:layout_height="2dp"
-        android:progress="20"
+        android:progress="0"
         style="?android:attr/progressBarStyleHorizontal"
         android:max="100"/>
 

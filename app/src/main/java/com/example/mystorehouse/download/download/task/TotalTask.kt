@@ -6,15 +6,14 @@ import android.text.TextUtils
 import android.util.Log
 import com.example.common.download.DownloadFileManager
 import com.example.common.download.RequestManager
-import com.example.common.download.callback.SingleTaskCallBack
+import com.example.common.download.callback.SubTaskCallBack
 import com.example.common.download.callback.TotalTaskCallBack
 import com.example.common.download.callback.TotalTaskCallBackImp
-import com.example.common.download.data.SingleTaskData
+import com.example.common.download.data.SubTaskData
 import com.example.common.download.data.TotalTaskData
 import com.example.common.download.data.getTaskPath
 import com.example.common.download.room.RoomManager
 import com.example.common.download.switchToMainThread
-import com.example.common.mvp.utils.RxUtils
 import io.reactivex.rxjava3.core.Observable
 import io.reactivex.rxjava3.core.ObservableOnSubscribe
 import io.reactivex.rxjava3.schedulers.Schedulers
@@ -35,7 +34,7 @@ class TotalTask private constructor() : Parcelable {
     var threadFinishCount = 0
     private val taskLock: Lock = ReentrantLock()
     private val progressLock: Lock = ReentrantLock()
-    private var singleTaskCallBack: MutableList<SingleTaskCallBack> = mutableListOf()
+    private var subTaskCallBacks: MutableList<SubTaskCallBack> = mutableListOf()
     private var totalTaskCallBack: TotalTaskCallBack? = null
 
     fun singleTaskFinish() {
@@ -49,7 +48,7 @@ class TotalTask private constructor() : Parcelable {
 
     private val TAG: String = "TotalTask"
 
-    var subTaskList: MutableList<SingleTask> = mutableListOf()
+    var subTaskList: MutableList<SubTask> = mutableListOf()
     var progressMap: MutableMap<Int, Float> = mutableMapOf<Int, Float>()
 
     constructor(parcel: Parcel) : this() {
@@ -74,12 +73,14 @@ class TotalTask private constructor() : Parcelable {
         }
     }
 
-    fun addSingleTaskCallBack(singleTaskCallBack: MutableList<SingleTaskCallBack>) {
-        this.singleTaskCallBack = singleTaskCallBack
+    fun addSingleTaskCallBack(singleTaskCallBack: MutableList<SubTaskCallBack>): TotalTask {
+        this.subTaskCallBacks = singleTaskCallBack
+        return this
     }
 
-    fun addTotalTaskCallBack(totalTaskCallBack: TotalTaskCallBackImp?) {
+    fun addTotalTaskCallBack(totalTaskCallBack: TotalTaskCallBack?): TotalTask {
         this.totalTaskCallBack = totalTaskCallBack
+        return this
     }
 
     /**
@@ -87,9 +88,9 @@ class TotalTask private constructor() : Parcelable {
      * 获取下载文件的长度
      */
     fun getContentLength(onCallBack: (contentLength: Long) -> Unit) {
-        if (RoomManager.checkHasCache(taskData.getTaskPath())){
+        if (RoomManager.checkHasCache(taskData.getTaskPath())) {
             getContentLengthByCache(onCallBack)
-        }else {
+        } else {
             getContentLengthByNetWork(onCallBack)
         }
     }
@@ -141,10 +142,10 @@ class TotalTask private constructor() : Parcelable {
         checkTaskData()
 
         //根据线程数创建单个任务集合
-        var taskList = mutableListOf<SingleTaskData?>()
-        if (checkHasCache){
+        var taskList = mutableListOf<SubTaskData?>()
+        if (checkHasCache) {
             taskList.addAll(createSubTasksByCache())
-        }else {
+        } else {
             taskList.addAll(createSubTasksByNew())
         }
         //为每个任务创建监听 并处理回调
@@ -152,15 +153,17 @@ class TotalTask private constructor() : Parcelable {
 
     }
 
-    private fun createSubTaskCallBacks(taskList: MutableList<SingleTaskData?>) {
+    private fun createSubTaskCallBacks(taskList: MutableList<SubTaskData?>) {
         for (i in 0 until taskData.threadCount) {
-            taskList[i]?.also {subTaskData ->
-                val singleTask = SingleTask(subTaskData)
-                singleTask.addSingleTaskCallBack(object : SingleTaskCallBack{
+            taskList[i]?.also { subTaskData ->
+                val subTask = SubTask(subTaskData)
+                subTask.addSubTaskCallBack(object : SubTaskCallBack {
                     override fun downloadSuccess(filePath: String) {
                         singleTaskFinish()
-                        Log.e(TAG, "downloadSuccess: 执行任务：" +
-                                "${singleTask.singleTaskData.taskNum} 当前执行线程: ${Thread.currentThread().name} + ${Thread.currentThread().id}")
+                        Log.e(
+                            TAG, "downloadSuccess: 执行任务：" +
+                                    "${subTask.subTaskData.taskNum} 当前执行线程: ${Thread.currentThread().name} + ${Thread.currentThread().id}"
+                        )
                         if (taskData.threadCount == threadFinishCount) {
                             switchToMainThread {
                                 DownloadFileManager.getInstance().mTaskMap.remove(taskData.url)
@@ -168,60 +171,73 @@ class TotalTask private constructor() : Parcelable {
                             }
                         }
                         switchToMainThread {
-                            if (singleTaskCallBack.size > i) {
-                                singleTaskCallBack[i].downloadSuccess(filePath)
+                            if (subTaskCallBacks.size > i) {
+                                subTaskCallBacks[i].downloadSuccess(filePath)
                             }
                         }
                     }
 
-                    override fun downloading(length: Float, singleTaskData: SingleTaskData) {
-                        Log.i(TAG, "createSubTasks downloading  当前执行线程: ${Thread.currentThread().name} + ${Thread.currentThread().id}")
-                        refreshProgress(singleTaskData.taskNum,singleTaskData.downloadSize)
-                        if (singleTaskCallBack.size > i){
-                            singleTaskCallBack[i].downloading(length, singleTaskData)
+                    override fun downloading(length: Float, singleTaskData: SubTaskData,progress: Float) {
+                        Log.i(TAG, "createSubTasks downloading  当前执行线程:" +
+                                " ${Thread.currentThread().name} + ${Thread.currentThread().id}"
+                        )
+                        refreshProgress(singleTaskData.taskNum, singleTaskData.downloadSize)
+                        switchToMainThread {
+                            if (subTaskCallBacks.size > i) {
+                                subTaskCallBacks[i].downloading(length, singleTaskData,progress)
+                            }
                         }
                     }
 
                     override fun downloadFail(errorMsg: String) {
-                        Log.i(TAG, "createSubTasks downloadFail  当前执行线程: ${Thread.currentThread().name} + ${Thread.currentThread().id}")
+                        Log.i(
+                            TAG, "createSubTasks downloadFail  当前执行线程:" +
+                                    " ${Thread.currentThread().name} + ${Thread.currentThread().id}"
+                        )
                         switchToMainThread {
                             DownloadFileManager.getInstance().mTaskMap.remove(taskData.url)
                             totalTaskCallBack?.downloadFail(errorMsg)
-                            if (singleTaskCallBack.size > i){
-                                singleTaskCallBack[i].downloadFail(errorMsg)
+                            if (subTaskCallBacks.size > i) {
+                                subTaskCallBacks[i].downloadFail(errorMsg)
                             }
                         }
                     }
 
                     override fun downloadCancle() {
-                        Log.i(TAG, "createSubTasks downloadCancle  当前执行线程 ${singleTask.singleTaskData.taskNum}: ${Thread.currentThread().id}")
+                        Log.i(
+                            TAG,
+                            "createSubTasks downloadCancle  当前执行线程 ${subTask.subTaskData.taskNum}: ${Thread.currentThread().id}"
+                        )
                     }
 
                     override fun downloadPause() {
-                        Log.i(TAG, "createSubTasks downloadPause  当前执行线程 ${singleTask.singleTaskData.taskNum}: ${Thread.currentThread().id}")
+                        Log.i(
+                            TAG,
+                            "createSubTasks downloadPause  当前执行线程 ${subTask.subTaskData.taskNum}: ${Thread.currentThread().id}"
+                        )
                     }
 
                 })
-                if (singleTaskCallBack.size - 1 >= i) {
-                    singleTask.addSingleTaskCallBack(singleTaskCallBack[i])
-                }
-                subTaskList.add(singleTask)
+//                if (subTaskCallBacks.size - 1 >= i) {
+//                    subTask.addSubTaskCallBack(subTaskCallBacks[i])
+//                }
+                subTaskList.add(subTask)
             }
 
         }
     }
 
-    private fun createSubTasksByCache(): MutableList<SingleTaskData?> {
+    private fun createSubTasksByCache(): MutableList<SubTaskData?> {
         return RoomManager.getAllSubTaskData(taskData.getTaskPath())
     }
 
-    private fun createSubTasksByNew(): MutableList<SingleTaskData> {
-        var taskList = mutableListOf<SingleTaskData>()
+    private fun createSubTasksByNew(): MutableList<SubTaskData> {
+        var taskList = mutableListOf<SubTaskData>()
         var singleTaskSize = taskData.fileContentLength / taskData.threadCount
         for (i in 0 until taskData.threadCount) {
             if (i == taskData.threadCount - 1) {
                 taskList.add(
-                    SingleTaskData(
+                    SubTaskData(
                         i, totalSize = singleTaskSize, url = taskData.url,
                         filePath = taskData.filePath, fileName = taskData.fileName,
                         startPos = i * singleTaskSize, endPos = taskData.fileContentLength
@@ -229,7 +245,7 @@ class TotalTask private constructor() : Parcelable {
                 )
             } else {
                 taskList.add(
-                    SingleTaskData(
+                    SubTaskData(
                         i,
                         totalSize = singleTaskSize,
                         url = taskData.url,
@@ -254,8 +270,8 @@ class TotalTask private constructor() : Parcelable {
             throw IllegalArgumentException("至少有1个下载任务线程！")
             return
         }
-        if (!singleTaskCallBack.isNullOrEmpty()) {
-            if (singleTaskCallBack.size < taskData.threadCount) {
+        if (!subTaskCallBacks.isNullOrEmpty()) {
+            if (subTaskCallBacks.size < taskData.threadCount) {
                 Log.i(TAG, "createTasks: 某些任务下载进度可能无法监控回调！")
             }
         }
@@ -275,33 +291,33 @@ class TotalTask private constructor() : Parcelable {
                         onStartSubTask()
                     }
                     //执行
-                    subTaskList.forEachIndexed { index, singleTask ->
-                        if (useSelfExcutor){
+                    subTaskList.forEachIndexed { index, subTask ->
+                        if (useSelfExcutor) {
                             //此处笔者配置可以使用自定义的线程池的原因是参照之前一些框架架构
-                            DownloadFileManager.getInstance().mExecutor.execute(singleTask.createThread())
-                        }else {
+                            DownloadFileManager.getInstance().mExecutor.execute(subTask.createThread())
+                        } else {
                             //不使用线程池是因为，okhttp内部已经在使用线程池，没必要在加线程池进行管理
-                            singleTask.excute()
+                            subTask.excute()
                         }
                     }
                 }
             }
 
-        }).subscribeOn(Schedulers.io()).subscribe({},{
-            Log.e(TAG, "excuteTask: ",it )
+        }).subscribeOn(Schedulers.io()).subscribe({}, {
+            Log.e(TAG, "excuteTask: ", it)
             totalTaskCallBack?.run {
-                downloadFail(it.message?:"下载异常！")
+                downloadFail(it.message ?: "下载异常！")
             }
         })
     }
 
     fun cancle() {
-        synchronized (this){
+        synchronized(this) {
             subTaskList.forEach {
-                if (!it.isFinish){
+                if (!it.isFinish) {
                     it.isCancle = true
                     Log.e(TAG, "cancle: true")
-                }else{
+                } else {
                 }
             }
             RoomManager.removeCacheTask(taskData.getTaskPath())
@@ -311,11 +327,11 @@ class TotalTask private constructor() : Parcelable {
     }
 
     fun pause() {
-        synchronized (this) {
+        synchronized(this) {
             subTaskList.forEach {
                 if ((!it.isFinish)) {
                     it.isPause = true
-                    RoomManager.getMMKVInstance()?.decodeBool(taskData.getTaskPath(),true)
+                    RoomManager.getMMKVInstance()?.decodeBool(taskData.getTaskPath(), true)
                     Log.e(TAG, "cancle: true")
                 }
             }
@@ -326,7 +342,7 @@ class TotalTask private constructor() : Parcelable {
     class Builder {
 
         private var taskData: TotalTaskData = TotalTaskData()
-        private var singleTaskCallBack: MutableList<SingleTaskCallBack> = mutableListOf()
+        private var singleTaskCallBack: MutableList<SubTaskCallBack> = mutableListOf()
         private var totalTaskCallBack: TotalTaskCallBackImp? = null
         private var downloadFileManager = DownloadFileManager.getInstance()
 
@@ -345,7 +361,7 @@ class TotalTask private constructor() : Parcelable {
             }
             val totalTask = TotalTask()
             totalTask.taskData = taskData
-            if (RoomManager.checkHasCache(taskData.getTaskPath())){
+            if (RoomManager.checkHasCache(taskData.getTaskPath())) {
                 totalTask.taskData = RoomManager.getCacheTaskData(taskData.getTaskPath())!!
             }
             totalTask.addSingleTaskCallBack(singleTaskCallBack)
@@ -375,12 +391,12 @@ class TotalTask private constructor() : Parcelable {
         }
 
         fun threadCount(threadCount: Int): Builder {
-            if (threadCount > 8){
+            if (threadCount > 8) {
                 //线程不易太多
                 taskData.threadCount = 8
-            }else if (threadCount <= 0){
+            } else if (threadCount <= 0) {
                 throw java.lang.IllegalArgumentException("下载线程数必须大于0！")
-            }else {
+            } else {
                 taskData.threadCount = threadCount
             }
             return this
@@ -402,7 +418,7 @@ class TotalTask private constructor() : Parcelable {
             return taskData.url
         }
 
-        fun addSingleTaskCallBack(vararg singleTaskCallBack: SingleTaskCallBack): Builder {
+        fun addSingleTaskCallBack(vararg singleTaskCallBack: SubTaskCallBack): Builder {
             this.singleTaskCallBack = singleTaskCallBack.toMutableList()
             return this
         }
