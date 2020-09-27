@@ -11,15 +11,15 @@ import java.io.File
  *     PackageName: com.example.common.download.data
  */
 @Parcelize
-class SubTaskData(var taskNum: Int = -1, var totalSize: Long = 0, var downloadSize: Float = 0F, var url: String = "",
+class SubTaskData(var taskNum: Int = -1, var totalSize: Long = 0, var downloadSize: Long = 0, var url: String = "",
                   var startPos: Long, var endPos: Long, var filePath: String = "", var fileName: String = ""
 ) : Parcelable {
     override fun toString(): String {
-        return "var taskNum: Int = $taskNum, var totalSize: Long =${totalSize}0, var downloadSize: Float = $downloadSize, var url: String = $url" +
+        return "var taskNum: Int = $taskNum, var totalSize: Long =${totalSize}0, var downloadSize: Long = $downloadSize, var url: String = $url" +
                 "                  var startPos = $startPos , var endPos=$endPos, var filePath: String = $filePath, var fileName: String = $fileName"
     }
 }
 
 fun SubTaskData.getTaskPath(): String {
-    return this.filePath+ File.separator+this.fileName + "_sub_${taskNum}"
+    return this.filePath+ File.separator+this.fileName
 }

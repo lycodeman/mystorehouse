@@ -9,6 +9,7 @@ import com.example.common.download.callback.SubTaskCallBack
 import com.example.common.download.callback.SubTaskCallBackImp
 import com.example.common.download.callback.TotalTaskCallBackImp
 import com.example.common.download.data.SubTaskData
+import com.example.common.download.room.RoomManager
 import com.example.common.download.task.TotalTask
 
 import com.example.common.mvp.base.BaseEmptyActivity
@@ -42,13 +43,19 @@ class DownLoadActivity : BaseEmptyActivity() {
     private val baseQuickAdapter =
         object : BaseQuickAdapter<SubTaskData, BaseViewHolder>(R.layout.item_rv_download) {
             override fun convert(holder: BaseViewHolder, item: SubTaskData) {
-                holder.itemView.tv_start.setOnClickListener { }
-                holder.itemView.tv_pause.setOnClickListener { }
-                holder.itemView.tv_cancle.setOnClickListener { }
+                holder.itemView.tv_start.setOnClickListener {
+                    totalTask?.excuteTask(false)
+                }
+                holder.itemView.tv_pause.setOnClickListener {
+                    totalTask?.pause()
+                }
+                holder.itemView.tv_cancle.setOnClickListener {
+                    totalTask?.cancle()
+                }
                 //展示单个任务的进度
                 if (item.totalSize != 0L){
                     holder.itemView.pb_download.progress =
-                        (item.downloadSize / item.totalSize*100).toInt()
+                        (item.downloadSize.toFloat() / item.totalSize*100).toInt()
                 }
                 Log.i(TAG,
                     "convert: ${holder.absoluteAdapterPosition.toString() + "===" 
@@ -135,7 +142,7 @@ class DownLoadActivity : BaseEmptyActivity() {
             }
             var subTaskCalls = mutableListOf<SubTaskCallBack>()
             for (i in 1..threadCount) {
-                baseQuickAdapter.addData(SubTaskData(startPos = 0,endPos = 0))
+                baseQuickAdapter.addData(SubTaskData(startPos = 0,endPos = 0,taskNum = i-1))
                 val subCallBack = object : SubTaskCallBackImp() {
                     override fun downloadSuccess(filePath: String) {
                         super.downloadSuccess(filePath)
@@ -153,7 +160,7 @@ class DownLoadActivity : BaseEmptyActivity() {
                         baseQuickAdapter.notifyDataSetChanged()
                         Log.i(TAG, "downloading: ${length/subTaskData.totalSize}")
                         Log.i(TAG, "downloading: ${length} + ${subTaskData.downloadSize} + ${subTaskData.totalSize}")
-                        Log.i(TAG, "downloading: $progress")
+                        Log.i(TAG, "downloading: $progress  ==taskNum=== ${subTaskData.taskNum}")
                     }
                 }
                 subTaskCalls.add(subCallBack)

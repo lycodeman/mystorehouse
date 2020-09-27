@@ -63,7 +63,7 @@ class SubTask() : BaseTask {
                             subTaskCallBack?.downloading(
                                 len.toFloat(),
                                 subTaskData,
-                                subTaskData.downloadSize / subTaskData.totalSize
+                                subTaskData.downloadSize.toFloat() / subTaskData.totalSize
                             )
                             //取消
                             if (isCancle) {
@@ -119,7 +119,7 @@ class SubTask() : BaseTask {
                         subTaskCallBack?.downloading(
                             len.toFloat(),
                             subTaskData,
-                            subTaskData.downloadSize / subTaskData.totalSize
+                            subTaskData.downloadSize.toFloat() / subTaskData.totalSize
                         )
 
                         //暂停
@@ -132,6 +132,7 @@ class SubTask() : BaseTask {
                     inputStream.close()
                     raf.close()
                     isFinish = true
+                    RoomManager.removeSubTaskData(subTaskData)
                     subTaskCallBack?.downloadSuccess(file.absolutePath)
                 } else {
                     throw RuntimeException("cannot get ResponseBody ")
