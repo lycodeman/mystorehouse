@@ -50,6 +50,10 @@ class DownLoadActivity : BaseEmptyActivity() {
                     holder.itemView.pb_download.progress =
                         (item.downloadSize / item.totalSize*100).toInt()
                 }
+                Log.i(TAG,
+                    "convert: ${holder.absoluteAdapterPosition.toString() + "===" 
+                            + item.totalSize+ "===" + item.downloadSize +"===="+item.toString()} "
+                )
             }
         }
 
@@ -145,7 +149,7 @@ class DownLoadActivity : BaseEmptyActivity() {
 
                     override fun downloading(length: Float, subTaskData: SubTaskData,progress: Float) {
                         super.downloading(length, subTaskData,progress)
-                        baseQuickAdapter.setData(i,subTaskData)
+                        baseQuickAdapter.setData(i-1,subTaskData)
                         baseQuickAdapter.notifyDataSetChanged()
                         Log.i(TAG, "downloading: ${length/subTaskData.totalSize}")
                         Log.i(TAG, "downloading: ${length} + ${subTaskData.downloadSize} + ${subTaskData.totalSize}")

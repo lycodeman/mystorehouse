@@ -13,7 +13,12 @@ import java.io.File
 @Parcelize
 class SubTaskData(var taskNum: Int = -1, var totalSize: Long = 0, var downloadSize: Float = 0F, var url: String = "",
                   var startPos: Long, var endPos: Long, var filePath: String = "", var fileName: String = ""
-) : Parcelable
+) : Parcelable {
+    override fun toString(): String {
+        return "var taskNum: Int = $taskNum, var totalSize: Long =${totalSize}0, var downloadSize: Float = $downloadSize, var url: String = $url" +
+                "                  var startPos = $startPos , var endPos=$endPos, var filePath: String = $filePath, var fileName: String = $fileName"
+    }
+}
 
 fun SubTaskData.getTaskPath(): String {
     return this.filePath+ File.separator+this.fileName + "_sub_${taskNum}"
