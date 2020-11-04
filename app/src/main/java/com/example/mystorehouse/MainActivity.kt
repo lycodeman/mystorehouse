@@ -50,6 +50,7 @@ class MainActivity : BaseEmptyActivity() {
                         1 -> ActivityManager.jump(WeatherActivity::class.java)
                         2 -> ActivityManager.jump(ScreenAdapterActivity::class.java)
                         3 -> ActivityManager.jump(DownLoadActivity::class.java)
+                        4 -> ActivityManager.jump(DatePickerActivity::class.java)
                     }
                 }
             }
@@ -63,6 +64,7 @@ class MainActivity : BaseEmptyActivity() {
         list.add("MVP 天气查询展示")
         list.add("屏幕适配")
         list.add("断点下载测试")
+        list.add("自定义日历-时间选择")
         adapter.setList(list)
     }
 }

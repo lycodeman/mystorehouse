@@ -1,11 +1,13 @@
 package com.example.common.download.task
 
+import android.util.Log
 import com.example.common.download.Constants
 import com.example.common.download.RequestManager
 import com.example.common.download.api.DownloadApi
 import com.example.common.download.callback.SubTaskCallBack
 import com.example.common.download.data.SubTaskData
 import com.example.common.download.room.RoomManager
+import com.example.common.download.switchToMainThread
 import java.io.File
 import java.io.InputStream
 import java.io.RandomAccessFile
@@ -40,12 +42,15 @@ class SubTask() : BaseTask {
 
     override fun createThread(): Thread {
         var threadName = subTaskData.fileName + "_" + subTaskData.taskNum
+        isPause = false
+        isCancle = false
+        isFinish = false
         return Thread(Runnable {
             val downloadApi =
                 RequestManager.createRetrofit(Constants.BASE_URL).create(DownloadApi::class.java)
             downloadApi.downLoadFile(
                 Constants.MOBILE_ASSISTANT_PATH,
-                "bytes=" + subTaskData.startPos.toString() + "-" + subTaskData.endPos.toString()
+                "bytes=" + (subTaskData.startPos + subTaskData.downloadSize).toString() + "-" + subTaskData.endPos.toString()
             )
                 .subscribe({ response ->
                     if (response?.byteStream() != null) {
@@ -53,7 +58,7 @@ class SubTask() : BaseTask {
                         val file = File(subTaskData.filePath, subTaskData.fileName)
                         var raf = RandomAccessFile(file, "rwd")
                         //找到上一次的点
-                        raf.seek(subTaskData.startPos)
+                        raf.seek(subTaskData.startPos + subTaskData.downloadSize)
                         val bytes = ByteArray(1024 * 2)
                         var len: Int
                         while (inputStream.read(bytes).also { len = it } != -1) {
@@ -68,12 +73,17 @@ class SubTask() : BaseTask {
                             //取消
                             if (isCancle) {
                                 subTaskCallBack?.downloadCancle()
+                                switchToMainThread {
+                                    RoomManager.removeSubTaskData(subTaskData)
+                                }
                                 break
                             }
                             //暂停
                             if (isPause) {
                                 subTaskCallBack?.downloadPause()
-                                RoomManager.saveOrUpdateDownloadTask(subTaskData)
+                                switchToMainThread {
+                                    RoomManager.saveSubTaskData(subTaskData)
+                                }
                                 break
                             }
                         }
@@ -101,7 +111,7 @@ class SubTask() : BaseTask {
             RequestManager.createRetrofit(Constants.BASE_URL).create(DownloadApi::class.java)
         downloadApi.downLoadFile(
             Constants.MOBILE_ASSISTANT_PATH,
-            "bytes=" + subTaskData.startPos.toString() + "-" + subTaskData.endPos.toString()
+            "bytes=" + (subTaskData.startPos + subTaskData.downloadSize).toString() + "-" + subTaskData.endPos.toString()
         )
             .subscribe({ response ->
                 if (response?.byteStream() != null) {
@@ -109,31 +119,37 @@ class SubTask() : BaseTask {
                     val file = File(subTaskData.filePath, subTaskData.fileName)
                     var raf = RandomAccessFile(file, "rwd")
                     //找到上一次的点
-                    raf.seek(subTaskData.startPos)
+                    raf.seek(subTaskData.startPos + subTaskData.downloadSize)
                     val bytes = ByteArray(1024 * 2)
                     var len: Int
                     while (inputStream.read(bytes).also { len = it } != -1) {
                         raf.write(bytes, 0, len)
-                        //保存下载的数据
+                        //刷新进度
                         subTaskData.downloadSize = subTaskData.downloadSize + len
                         subTaskCallBack?.downloading(
                             len.toFloat(),
                             subTaskData,
                             subTaskData.downloadSize.toFloat() / subTaskData.totalSize
                         )
-
+                        //取消
+                        if (isCancle) {
+                            subTaskCallBack?.downloadCancle()
+                            RoomManager.removeSubTaskData(subTaskData)
+                            break
+                        }
                         //暂停
                         if (isPause) {
-                            subTaskCallBack?.downloadCancle()
-                            RoomManager.saveOrUpdateDownloadTask(subTaskData)
+                            subTaskCallBack?.downloadPause()
+                            RoomManager.saveSubTaskData(subTaskData)
                             break
                         }
                     }
                     inputStream.close()
                     raf.close()
                     isFinish = true
-                    RoomManager.removeSubTaskData(subTaskData)
-                    subTaskCallBack?.downloadSuccess(file.absolutePath)
+                    if (!isCancle && !isPause) {
+                        subTaskCallBack?.downloadSuccess(file.absolutePath)
+                    }
                 } else {
                     throw RuntimeException("cannot get ResponseBody ")
                 }

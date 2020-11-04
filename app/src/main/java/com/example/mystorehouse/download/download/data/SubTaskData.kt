@@ -1,6 +1,7 @@
 package com.example.common.download.data
 
 import android.os.Parcelable
+import com.blankj.utilcode.util.FileUtils
 import kotlinx.android.parcel.Parcelize
 import java.io.File
 
@@ -18,8 +19,15 @@ class SubTaskData(var taskNum: Int = -1, var totalSize: Long = 0, var downloadSi
         return "var taskNum: Int = $taskNum, var totalSize: Long =${totalSize}0, var downloadSize: Long = $downloadSize, var url: String = $url" +
                 "                  var startPos = $startPos , var endPos=$endPos, var filePath: String = $filePath, var fileName: String = $fileName"
     }
+    var md5Value: String = ""
+
 }
 
 fun SubTaskData.getTaskPath(): String {
     return this.filePath+ File.separator+this.fileName
+}
+
+
+fun SubTaskData.getMD5Value(): String{
+    return FileUtils.getFileMD5ToString(filePath)
 }

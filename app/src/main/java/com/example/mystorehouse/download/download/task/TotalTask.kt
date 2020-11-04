@@ -12,9 +12,11 @@ import com.example.common.download.callback.TotalTaskCallBack
 import com.example.common.download.callback.TotalTaskCallBackImp
 import com.example.common.download.data.SubTaskData
 import com.example.common.download.data.TotalTaskData
+import com.example.common.download.data.getMD5Value
 import com.example.common.download.data.getTaskPath
 import com.example.common.download.room.RoomManager
 import com.example.common.download.switchToMainThread
+import com.example.mystorehouse.ex.showKeyBord
 import io.reactivex.rxjava3.core.Observable
 import io.reactivex.rxjava3.core.ObservableOnSubscribe
 import io.reactivex.rxjava3.schedulers.Schedulers
@@ -48,7 +50,7 @@ class TotalTask private constructor() : Parcelable {
     //总任务回调集合
     private var totalTaskCallBack: TotalTaskCallBack? = null
 
-    fun downloadSuccess(filePath: String,callBackPosition: Int) {
+    fun downloadSuccess(filePath: String, callBackPosition: Int) {
         taskFinishLock.lock()
         try {
             threadFinishCount++
@@ -80,10 +82,12 @@ class TotalTask private constructor() : Parcelable {
     }
 
 
-    fun refreshProgress(taskNum: Int, downloadSize: Long, callBackPosition: Int,
-                        length: Float,
-                        singleTaskData: SubTaskData,
-                        progress: Float) {
+    fun refreshProgress(
+        taskNum: Int, downloadSize: Long, callBackPosition: Int,
+        length: Float,
+        singleTaskData: SubTaskData,
+        progress: Float
+    ) {
         progressLock.lock()
         try {
             progressMap.put(taskNum, downloadSize)
@@ -194,17 +198,25 @@ class TotalTask private constructor() : Parcelable {
                 val subTask = SubTask(subTaskData)
                 subTask.addSubTaskCallBack(object : SubTaskCallBack {
                     override fun downloadSuccess(filePath: String) {
-                        Log.e(TAG, "downloadSuccess: 执行任务：" + "${subTask.subTaskData.taskNum} 当前执行线程: " +
-                                "${Thread.currentThread().name} + ${Thread.currentThread().id}"
+                        Log.e(
+                            TAG,
+                            "downloadSuccess: 执行任务：" + "${subTask.subTaskData.taskNum} 当前执行线程: " +
+                                    "${Thread.currentThread().name} + ${Thread.currentThread().id}"
                         )
-                        downloadSuccess(filePath,i)
+                        downloadSuccess(filePath, i)
                     }
 
-                    override fun downloading(length: Float, singleTaskData: SubTaskData, progress: Float) {
+                    override fun downloading(
+                        length: Float,
+                        singleTaskData: SubTaskData,
+                        progress: Float
+                    ) {
                         Log.i(TAG, "createSubTasks downloading  当前执行线程:" +
-                                    " ${Thread.currentThread().name} + ${Thread.currentThread().id}")
+                                    " ${Thread.currentThread().name} + ${Thread.currentThread().id}"
+                        )
                         refreshProgress(singleTaskData.taskNum, singleTaskData.downloadSize,
-                            i,length, singleTaskData, progress)
+                            i, length, singleTaskData, progress
+                        )
                     }
 
                     override fun downloadFail(errorMsg: String) {
@@ -220,13 +232,16 @@ class TotalTask private constructor() : Parcelable {
                     }
 
                     override fun downloadCancle() {
-                        Log.i(TAG, "createSubTasks downloadCancle  当前执行线程 ${subTask.subTaskData.taskNum}: " +
+                        Log.i(TAG,
+                            "createSubTasks downloadCancle  当前执行线程 ${subTask.subTaskData.taskNum}: " +
                                     "${Thread.currentThread().id}"
                         )
                     }
 
                     override fun downloadPause() {
-                        Log.i(TAG, "createSubTasks downloadPause  当前执行线程 ${subTask.subTaskData.taskNum}: " +
+                        Log.i(
+                            TAG,
+                            "createSubTasks downloadPause  当前执行线程 ${subTask.subTaskData.taskNum}: " +
                                     "${Thread.currentThread().id}"
                         )
                     }
@@ -247,24 +262,28 @@ class TotalTask private constructor() : Parcelable {
         var singleTaskSize = taskData.fileContentLength / taskData.threadCount
         for (i in 0 until taskData.threadCount) {
             if (i == taskData.threadCount - 1) {
+                val element = SubTaskData(
+                    i, totalSize = singleTaskSize, url = taskData.url,
+                    filePath = taskData.filePath, fileName = taskData.fileName,
+                    startPos = i * singleTaskSize, endPos = taskData.fileContentLength
+                )
+                element.md5Value = element.getMD5Value()
                 taskList.add(
-                    SubTaskData(
-                        i, totalSize = singleTaskSize, url = taskData.url,
-                        filePath = taskData.filePath, fileName = taskData.fileName,
-                        startPos = i * singleTaskSize, endPos = taskData.fileContentLength
-                    )
+                    element
                 )
             } else {
+                val element = SubTaskData(
+                    i,
+                    totalSize = singleTaskSize,
+                    url = taskData.url,
+                    filePath = taskData.filePath,
+                    fileName = taskData.fileName,
+                    startPos = i * singleTaskSize,
+                    endPos = (i + 1) * singleTaskSize
+                )
+                element.md5Value = element.getMD5Value()
                 taskList.add(
-                    SubTaskData(
-                        i,
-                        totalSize = singleTaskSize,
-                        url = taskData.url,
-                        filePath = taskData.filePath,
-                        fileName = taskData.fileName,
-                        startPos = i * singleTaskSize,
-                        endPos = (i + 1) * singleTaskSize
-                    )
+                    element
                 )
             }
         }
@@ -326,34 +345,80 @@ class TotalTask private constructor() : Parcelable {
         })
     }
 
-    fun cancle() {
-        synchronized(this) {
-            subTaskList.forEach {
-                if (!it.isFinish) {
-                    it.isCancle = true
-                    Log.e(TAG, "cancle: true")
-                } else {
+    fun excuteSubTask(subTaskData: SubTaskData?) {
+        subTaskData?.also { sub ->
+            Observable.create(ObservableOnSubscribe<Any> {
+                //子线程
+                Log.i(TAG, "excuteTask 当前执行线程: ${Thread.currentThread().id}")
+                taskData.run {
+                    val checkHasCache = RoomManager.checkHasCache(this.getTaskPath())
+                    val file = File(filePath, fileName)
+                    if (!checkHasCache && file.exists()) {
+                        //没有缓存  但是文件存在 则删除
+                        FileUtils.delete(file)
+                    }
+                    //执行
+                    subTaskList.filter {
+                        it.subTaskData.taskNum == sub.taskNum
+                    }.forEachIndexed { index, subTask ->
+                        DownloadFileManager.getInstance().mExecutor.execute(subTask.createThread())
+                    }
                 }
-            }
-            RoomManager.removeCacheTask(taskData.getTaskPath())
-            RoomManager.removeAllSubTaskData(taskData.getTaskPath())
+
+            }).subscribeOn(Schedulers.io()).subscribe({}, {
+                Log.e(TAG, "excuteTask: ", it)
+                totalTaskCallBack?.run {
+                    downloadFail(it.message ?: "下载异常！")
+                }
+            })
         }
 
+    }
+
+    fun cancle() {
+        subTaskList.forEach {
+            if (!it.isFinish) {
+                it.isCancle = true
+                Log.e(TAG, "total cancle: true")
+            }
+        }
+        RoomManager.removeCacheTask(taskData.getTaskPath())
+        RoomManager.removeAllSubTaskData(taskData.getTaskPath())
     }
 
     fun pause() {
-        synchronized(this) {
-            subTaskList.forEach {
-                if ((!it.isFinish)) {
-                    it.isPause = true
-                    RoomManager.getMMKVInstance()?.decodeBool(taskData.getTaskPath(), true)
-                    Log.e(TAG, "cancle: true")
-                }
+        subTaskList.forEach {
+            if ((!it.isFinish)) {
+                it.isPause = true
+                Log.e(TAG, "total pause: true")
             }
-            RoomManager.saveCacheTask(taskData.getTaskPath(), taskData)
+        }
+        RoomManager.saveCacheTask(taskData.getTaskPath(), taskData)
+    }
+
+
+    fun cancleSubTask(subNum: Int) {
+        subTaskList.filter {
+            it.subTaskData.taskNum == subNum
+        }.forEachIndexed { index, subTask ->
+            if (!subTask.isFinish) {
+                subTask.isCancle = true
+                Log.e(TAG, "sub cancle: true")
+            }
         }
     }
 
+    fun pauseSubTask(subNum: Int) {
+        subTaskList.filter {
+            it.subTaskData.taskNum == subNum
+        }.forEachIndexed { index, subTask ->
+            if (!subTask.isFinish) {
+                subTask.isPause = true
+                Log.e(TAG, "sub isPause: true")
+            }
+        }
+        RoomManager.saveCacheTask(taskData.getTaskPath(), taskData)
+    }
 
     class Builder {
 
@@ -376,6 +441,7 @@ class TotalTask private constructor() : Parcelable {
                 return null
             }
             val totalTask = TotalTask()
+            taskData.md5Value = taskData.getMD5Value()
             totalTask.taskData = taskData
             if (RoomManager.checkHasCache(taskData.getTaskPath())) {
                 totalTask.taskData = RoomManager.getCacheTaskData(taskData.getTaskPath())!!

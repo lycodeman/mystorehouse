@@ -27,7 +27,7 @@ class MyApplication : Application(){
 //            }
         }
         if (BuildConfig.DEBUG) {
-            UETool.showUETMenu()
+//            UETool.showUETMenu()
         }
         AutoSizeConfig.getInstance().setCustomFragment(true)
         MMKV.initialize(this)

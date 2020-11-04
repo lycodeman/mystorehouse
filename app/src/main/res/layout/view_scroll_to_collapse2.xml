@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/scroll_to_collapse"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    tools:parentTag="android.widget.LinearLayout">
+
+    <com.example.mystorehouse.date.widget.YearView
+        android:id="@+id/year_view"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" />
+
+    <com.example.mystorehouse.date.widget.MonthTabView
+        android:id="@+id/month_tab_view"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/year_view" />
+
+    <View
+        android:id="@+id/line_view"
+        android:layout_width="match_parent"
+        android:layout_height="0.5dp"
+        android:layout_below="@id/month_tab_view"
+        android:background="#E4E4E4" />
+
+    <RelativeLayout
+        android:layout_below="@id/line_view"
+        android:id="@+id/rl_month_and_week"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <ImageView
+            android:visibility="gone"
+            android:id="@+id/image_view"
+            android:layout_width="match_parent"
+            android:layout_height="400dp"
+            android:background="@color/read"/>
+
+        <com.example.mystorehouse.date.widget.MonthView
+            android:id="@+id/month_view"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" />
+
+        <com.example.mystorehouse.date.widget.WeekView
+            android:id="@+id/week_view"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" />
+
+    </RelativeLayout>
+
+
+    <androidx.core.widget.NestedScrollView
+        android:layout_below="@id/rl_month_and_week"
+        android:id="@+id/scroll_view"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <LinearLayout
+            android:id="@+id/ll_scroll_view"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:paddingHorizontal="16dp"
+                android:text="选中你的日期选中你的日期选中你的日期选中你的日期选中你的日期选中
+                选中你的日期选中你的日期选中你的日期选中你的日期选中你的日期选中你的日期选中你的日期选中你的日期选中你的日期
+                选中你的日期选中你的日期选中你的日期选中你的日期选中你的日期选中你的日期选中你的日期选中你的日期选中你的日期
+                选中你的日期选中你的日期选中你的日期选中你的日期选中你的日期选中你的日期选中你的日期选中你的日期选中你的日期
+                选中你的日期选中你的日期选中你的日期选中你的日期选中你的日期选中你的日期选中你的日期选中你的日期选中你的日期
+                选中你的日期选中你的日期选中你的日期选中你的日期选中你的日期选中你的日期选中你的日期选中你的日期选中你的日期
+                选中你的日期选中你的日期选中你的日期选中你的日期选中你的日期选中你的日期选中你的日期选中你的日期选中你的日期
+                选中你的日期选中你的日期选中你的日期选中你的日期选中你的日期选中你的日期选中你的日期选中你的日期选中你的日期
+                选中你的日期选中你的日期选中你的日期选中你的日期选中你的日期选中你的日期选中你的日期选中你的日期选中你的日期
+                选中你的日期选中你的日期选中你的日期选中你的日期选中你的日期选中你的日期选中你的日期选中你的日期选中你的日期
+                选中你的日期选中你的日期选中你的日期选中你的日期选中你的日期选中你的日期选中你的日期选中你的日期选中你的日期
+                选中你的日期选中你的日期选中你的日期选中你的日期选中你的日期选中你的日期选中你的日期选中你的日期选中你的日期你的日期选中你的日期选中你的日期选中你的日期"
+                android:textColor="@android:color/black"
+                android:textSize="16sp" />
+
+        </LinearLayout>
+    </androidx.core.widget.NestedScrollView>
+
+
+</RelativeLayout>
+
+
+
+

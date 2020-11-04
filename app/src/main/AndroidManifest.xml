@@ -45,6 +45,7 @@
         <activity android:name=".screenadapter.ScreenInfoActivity" />
         <activity android:name=".screenadapter.TodayHeadLineActivity" />
         <activity android:name=".download.DownLoadActivity" />
+        <activity android:name=".DatePickerActivity" />
     </application>
 
 </manifest>

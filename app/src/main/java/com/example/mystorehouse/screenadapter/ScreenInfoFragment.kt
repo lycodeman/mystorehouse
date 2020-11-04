@@ -51,7 +51,7 @@ class ScreenInfoFragment : BaseEmptyFragment(),CancelAdapt {
                     布局 高度为：${rootView?.height}px
                     屏幕宽度：${ScreenUtils.getAppScreenWidth()}px
                     屏幕高度：${ScreenUtils.getAppScreenHeight()}px
-                    屏幕密度：${ScreenUtils.getScreenDensity()}
+                    屏幕密度density：${ScreenUtils.getScreenDensity()}
                     屏幕densityDpi：${ScreenUtils.getScreenDensityDpi()} dp
                     虚拟按键高度：${ScreenUitls.getCurrentNavigationBarHeight(requireActivity())} px
                     设置高度：320dp 设置宽度： 180dp

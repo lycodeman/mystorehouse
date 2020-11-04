@@ -5,6 +5,8 @@ import com.example.mystorehouse.dagger.scope.FragmentScope
 import com.example.mystorehouse.mvp.fragment.WeatherDetailFragment
 import com.example.mystorehouse.mvp.fragment.WeatherFragment
 import com.example.mystorehouse.screenadapter.*
+import com.example.mystorehouse.date.widget.MonthFragment
+import com.example.mystorehouse.date.widget.WeekFragment
 import com.trello.rxlifecycle4.components.support.RxAppCompatActivity
 import dagger.Component
 
@@ -26,6 +28,8 @@ interface FragmentComponent {
     fun injectFragment(screenInfo8Fragment: ScreenInfo8Fragment)
     fun injectFragment(screenInfo9Fragment: ScreenInfo9Fragment)
     fun injectFragment(screenInfo10Fragment: ScreenInfo10Fragment)
+    fun injectFragment(monthFragment: MonthFragment)
+    fun injectFragment(weekFragment: WeekFragment)
 
     //    void inject(JokeContentFragment contentFragment);
 

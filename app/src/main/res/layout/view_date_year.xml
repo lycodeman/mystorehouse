@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="wrap_content"
+    android:layout_height="48dp"
+    android:id="@+id/ll_root"
+    android:gravity="center"
+    android:background="@drawable/ripple_bg"
+    tools:parentTag="android.widget.LinearLayout">
+
+    <TextSwitcher
+        android:id="@+id/tv_year"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:inAnimation="@anim/slide_in_up"
+        android:outAnimation="@anim/slide_out_up"
+        android:paddingVertical="8dp"
+        android:paddingLeft="8dp"
+        android:text="2020"
+        android:textColor="@color/white"
+        android:textSize="16sp" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:inAnimation="@anim/slide_in_up"
+        android:outAnimation="@anim/slide_out_up"
+        android:paddingRight="8dp"
+        android:text="年"
+        android:textColor="@color/white"
+        android:textSize="16sp"
+        android:textStyle="bold" />
+
+    <TextSwitcher
+        android:id="@+id/tv_month"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:inAnimation="@anim/slide_in_up"
+        android:outAnimation="@anim/slide_out_up"
+        android:paddingVertical="8dp"
+        android:paddingLeft="8dp"
+        android:text="10"
+        android:textColor="@color/white"
+        android:textSize="16sp" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:inAnimation="@anim/slide_in_up"
+        android:outAnimation="@anim/slide_out_up"
+        android:text="月"
+        android:textColor="@color/white"
+        android:textSize="16sp"
+        android:textStyle="bold" />
+</LinearLayout>

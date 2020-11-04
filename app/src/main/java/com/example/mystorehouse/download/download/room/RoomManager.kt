@@ -24,35 +24,35 @@ object RoomManager {
 
     fun saveOrUpdateDownloadTask(singleTaskData: SubTaskData) {
         //将下载的参数 存入数据库
-        Log.e(TAG, "saveOrUpdateDownloadTask: save thread" )
+        Log.e(TAG, "saveOrUpdateDownloadTask: save thread")
         //存储下载的进度
-        savSubTaskData(singleTaskData)
+        saveSubTaskData(singleTaskData)
     }
 
     /**
      * return 是否有缓存
      */
-    fun checkHasCache(filePath: String): Boolean{
+    fun checkHasCache(filePath: String): Boolean {
         val cacheTask = getCacheTaskData(filePath)
         var hasCache = false
         cacheTask?.run {
             hasCache = File(this.filePath, fileName).exists() && hasCacheTask(filePath)
-            if (!hasCache){
-                getMMKVInstance()?.decodeBool(filePath,false)
+            if (!hasCache) {
+                getMMKVInstance()?.decodeBool(filePath, false)
             }
         }
         return hasCache
     }
 
-    fun hasCacheTask(filePath: String): Boolean{
+    fun hasCacheTask(filePath: String): Boolean {
         return getCacheTaskData(filePath) != null
     }
 
     /**
      * 存入对应任务数据
      */
-    fun saveCacheTask(filePath: String,totalTaskData: TotalTaskData){
-        getMMKVInstance()?.encode(FileUtils.getFileMD5ToString(filePath),totalTaskData)
+    fun saveCacheTask(filePath: String, totalTaskData: TotalTaskData) {
+        getMMKVInstance()?.encode(FileUtils.getFileMD5ToString(filePath), totalTaskData)
     }
 
     /**
@@ -66,11 +66,11 @@ object RoomManager {
      * 获取任务数据
      */
     fun getCacheTaskData(filePath: String): TotalTaskData? {
-         try {
-             val fileMD5ToString = FileUtils.getFileMD5ToString(filePath)
-            return getMMKVInstance()?.decodeParcelable(fileMD5ToString,TotalTaskData::class.java)
+        try {
+            val fileMD5ToString = FileUtils.getFileMD5ToString(filePath)
+            return getMMKVInstance()?.decodeParcelable(fileMD5ToString, TotalTaskData::class.java)
         } catch (e: Exception) {
-             Log.e(TAG, "getCacheTaskData: ", e )
+            Log.e(TAG, "getCacheTaskData: ", e)
             return null
         }
     }
@@ -81,12 +81,12 @@ object RoomManager {
     fun getAllSubTaskData(filePath: String): MutableList<SubTaskData?> {
         var subTaskList = mutableListOf<SubTaskData?>()
         getCacheTaskData(filePath)?.run {
-            if (threadCount>0){
+            if (threadCount > 0) {
                 for (i in 0 until threadCount) {
                     var subTaskData = getMMKVInstance()?.decodeParcelable(
-                        FileUtils.getFileMD5ToString(filePath)+ "_sub_$i",SubTaskData::class.java)
+                        FileUtils.getFileMD5ToString(filePath) + "_sub_$i", SubTaskData::class.java
+                    )
                     subTaskData?.run {
-                        startPos += this.downloadSize
                         subTaskList.add(this)
                     }
                 }
@@ -98,37 +98,51 @@ object RoomManager {
     /**
      * 移除所有子任务
      */
-    fun removeAllSubTaskData(filePath: String){
+    fun removeAllSubTaskData(filePath: String) {
         getCacheTaskData(filePath)?.also { totalTaskData ->
-            if (totalTaskData.threadCount>0){
+            if (totalTaskData.threadCount > 0) {
                 for (i in 0 until totalTaskData.threadCount) {
                     var subTaskData = getMMKVInstance()?.decodeParcelable(
-                        FileUtils.getFileMD5ToString(filePath)+ "_sub_$i",SubTaskData::class.java)
+                        FileUtils.getFileMD5ToString(filePath) + "_sub_$i", SubTaskData::class.java
+                    )
                     subTaskData?.run { removeSubTaskData(this) }
                 }
             }
         }
     }
 
+
+    fun getSubTaskData(key: String): SubTaskData? {
+        val subTaskData = getMMKVInstance()?.decodeParcelable(key, SubTaskData::class.java)
+        return subTaskData
+    }
+
+
     /**
      * 缓存子任务数据
      */
-    fun savSubTaskData(subTaskData:SubTaskData){
+    fun saveSubTaskData(subTaskData: SubTaskData) {
         getMMKVInstance()?.encode(
-            FileUtils.getFileMD5ToString(subTaskData.getTaskPath())  + "_sub_${subTaskData.taskNum}",subTaskData)
+            subTaskData.md5Value,
+            subTaskData
+        )
+        Log.i(TAG, "saveSubTaskData: ${subTaskData.taskNum}")
     }
 
-    fun removeSubTaskData(subTaskData:SubTaskData){
-        getMMKVInstance()?.removeValueForKey(
-            FileUtils.getFileMD5ToString(subTaskData.getTaskPath())  + "_sub_${subTaskData.taskNum}")
+    fun removeSubTaskData(subTaskData: SubTaskData) {
+        val fileKey = FileUtils.getFileMD5ToString(subTaskData.getTaskPath())
+        if (getMMKVInstance()?.containsKey(fileKey+ "_sub_${subTaskData.taskNum}") == true) {
+            getMMKVInstance()?.removeValueForKey(fileKey + "_sub_${subTaskData.taskNum}")
+            Log.i(TAG, "removeSubTaskData: ${subTaskData.taskNum}")
+        }
     }
 
     /**
      * 缓存所有子任务数据
      */
-    fun savAllSubTaskData(subTaskDatas:MutableList<SubTaskData>){
+    fun savAllSubTaskData(subTaskDatas: MutableList<SubTaskData>) {
         for (subTaskData in subTaskDatas) {
-            savSubTaskData(subTaskData)
+            saveSubTaskData(subTaskData)
         }
     }
 

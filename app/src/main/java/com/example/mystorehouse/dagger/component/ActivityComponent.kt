@@ -1,4 +1,5 @@
 package com.example.mystorehouse.dagger.component
+import com.example.mystorehouse.DatePickerActivity
 import com.example.mystorehouse.MainActivity
 import com.example.mystorehouse.ScreenAdapterActivity
 import com.example.mystorehouse.mvp.activity.JokeListActivity
@@ -27,4 +28,5 @@ interface ActivityComponent {
     fun inject(screenInfoActivity: ScreenInfoActivity)
     fun inject(todayHeadLineActivity: TodayHeadLineActivity)
     fun inject(downLoadActivity: DownLoadActivity)
+    fun inject(datePickerActivity: DatePickerActivity)
 }

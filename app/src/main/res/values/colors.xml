@@ -3,4 +3,13 @@
     <color name="colorPrimary">#6200EE</color>
     <color name="colorPrimaryDark">#3700B3</color>
     <color name="colorAccent">#03DAC5</color>
+    <color name="transparent">#00FFFFFF</color>
+    <color name="color_1C1C1C">#1C1C1C</color>
+    <color name="color_9A9A9A">#9A9A9A</color>
+    <color name="color_D2D2D2">#D2D2D2</color>
+    <color name="color_E35C5C">#E35C5C</color>
+    <color name="black">#000000</color>
+    <color name="read">#D81F12</color>
+    <color name="FFEAE9E9">#FFEAE9E9</color>
+    <color name="color_FFE6E3E3">#FFE6E3E3</color>
 </resources>
