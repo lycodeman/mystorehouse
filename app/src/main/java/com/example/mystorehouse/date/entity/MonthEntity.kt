@@ -8,7 +8,9 @@ import java.util.*
  *     Desc   :
  *     PackageName: com.example.mystorehouse.date.entity
  */
-class MonthEntity( var position: Int,var solarDay: String,var lunarDay: String,var date: Date,var onTheMonth: Boolean = true,var isSelect: Boolean = false) {
+class MonthEntity( var position: Int,var solarDay: String,var lunarDay: String,
+                   var date: Date,var onTheMonth: Boolean = true,
+                   var isSelect: Boolean = false,pointX: Int = 0,pointY: Int = 0) {
 
 
 }

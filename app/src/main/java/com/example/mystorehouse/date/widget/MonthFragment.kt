@@ -9,6 +9,7 @@ import com.chad.library.adapter.base.viewholder.BaseViewHolder
 import com.example.common.mvp.base.BaseEmptyFragment
 import com.example.mystorehouse.R
 import com.example.mystorehouse.date.Lunar
+import com.example.mystorehouse.date.Utils
 import com.example.mystorehouse.date.entity.MonthEntity
 import com.example.mystorehouse.getColorFromResource
 import com.trello.rxlifecycle4.components.support.RxFragment
@@ -132,131 +133,7 @@ class MonthFragment(var date: Date, var clearSelectDay: (position: Int) -> Unit)
 
 
     fun initDate() {
-        var temp = mutableListOf<MonthEntity>()
-        var calendar = Calendar.getInstance()
-        calendar.time = date
-        calendar.set(Calendar.DAY_OF_MONTH, 1)
-        var month = calendar.get(Calendar.MONTH)
-        var year = calendar.get(Calendar.YEAR)
-        var dayOfWeek = calendar.get(Calendar.DAY_OF_WEEK) - 1
-        if (dayOfWeek == 0) {
-            dayOfWeek = 7
-        }
-        var position = -1
-        if (dayOfWeek <= 5) {
-            //计算上一个月
-            calendar.clear()
-            calendar.set(Calendar.YEAR, year)
-            calendar.set(Calendar.MONTH, month - 1)
-            //getActualMaximum之前要重新设置才会生效
-            var lastMonthLastDay = calendar.getActualMaximum(Calendar.DAY_OF_MONTH)
-            for (i in -(dayOfWeek - 2)..(0)) {
-                calendar.set(Calendar.DAY_OF_MONTH, lastMonthLastDay + i)
-                val lunar = Lunar(calendar)
-                temp.add(
-                    MonthEntity(
-                        ++position,
-                        calendar.get(Calendar.DAY_OF_MONTH).toString(),
-                        lunar.getChinaDay(),
-                        calendar.time,
-                        onTheMonth = false
-                    )
-                )
-            }
-            //添加当前月份的时间
-            calendar.clear()
-            calendar.set(Calendar.YEAR, year)
-            calendar.set(Calendar.MONTH, month)
-            var maxDay = calendar.getActualMaximum(Calendar.DAY_OF_MONTH)
-            for (i in 1..maxDay) {
-                calendar.set(Calendar.DAY_OF_MONTH, i)
-                val lunar = Lunar(calendar)
-                temp.add(
-                    MonthEntity(
-                        ++position,
-                        i.toString(),
-                        lunar.getChinaDay(),
-                        calendar.time,
-                        onTheMonth = true,
-                        isSelect = (i == 1 && !isCurrentMonth()) || (isCurrentMonth() && isCurrentDay(i))
-                    )
-                )
-            }
-            //添加之后月份的时间
-            val size = temp.size
-            calendar.clear()
-            calendar.set(Calendar.YEAR, year)
-            calendar.set(Calendar.MONTH, month + 1)
-            for (i in 1..(35 - size)) {
-                calendar.set(Calendar.DAY_OF_MONTH, i)
-                val lunar = Lunar(calendar)
-                temp.add(
-                    MonthEntity(
-                        ++position,
-                        i.toString(),
-                        lunar.getChinaDay(),
-                        calendar.time,
-                        onTheMonth = false
-                    )
-                )
-            }
-        } else {
-            //计算上一个月
-            calendar.clear()
-            calendar.set(Calendar.YEAR, year)
-            calendar.set(Calendar.MONTH, month - 1)
-            //getActualMaximum之前要重新设置才会生效
-            var lastMonthLastDay = calendar.getActualMaximum(Calendar.DAY_OF_MONTH)
-            for (i in -(dayOfWeek - 2)..(0)) {
-                calendar.set(Calendar.DAY_OF_MONTH, lastMonthLastDay + i)
-                val lunar = Lunar(calendar)
-                temp.add(
-                    MonthEntity(
-                        ++position,
-                        calendar.get(Calendar.DAY_OF_MONTH).toString(),
-                        lunar.getChinaDay(),
-                        date,
-                        onTheMonth = false
-                    )
-                )
-            }
-            calendar.clear()
-            calendar.set(Calendar.YEAR, year)
-            calendar.set(Calendar.MONTH, month)
-            var maxDay = calendar.getActualMaximum(Calendar.DAY_OF_MONTH)
-            for (i in 1..maxDay) {
-                calendar.set(Calendar.DAY_OF_MONTH, i)
-                val lunar = Lunar(calendar)
-                temp.add(
-                    MonthEntity(
-                        ++position,
-                        i.toString(),
-                        lunar.getChinaDay(),
-                        date,
-                        onTheMonth = true,
-                        isSelect = (i == 1 && !isCurrentMonth()) || (isCurrentMonth() && isCurrentDay(i))
-                    )
-                )
-            }
-            val size = temp.size
-            calendar.clear()
-            calendar.set(Calendar.YEAR, year)
-            calendar.set(Calendar.MONTH, month + 1)
-            for (i in 1..(42 - size)) {
-                calendar.set(Calendar.DAY_OF_MONTH, i)
-                val lunar = Lunar(calendar)
-                temp.add(
-                    MonthEntity(
-                        ++position,
-                        i.toString(),
-                        lunar.getChinaDay(),
-                        date,
-                        onTheMonth = false
-                    )
-                )
-            }
-        }
-        mAdapter.setList(temp)
+        mAdapter.setList(Utils().getMonthDays(date))
     }
 
     fun getRv(): RecyclerView? {
