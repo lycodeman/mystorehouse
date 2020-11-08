@@ -1,5 +1,7 @@
 package com.example.mystorehouse
 
+import android.util.Log
+import android.view.GestureDetector
 import android.view.MotionEvent
 import android.view.View
 import androidx.core.widget.NestedScrollView
@@ -19,6 +21,10 @@ class DatePickerActivity : BaseEmptyActivity(){
         return R.layout.activity_date_picker
     }
 
+    var measureHeight = 0
+    var mScrollY = 0
+//    lateinit var gestureDetector: GestureDetector
+
     override fun initView(): RxAppCompatActivity {
         val instance = Calendar.getInstance()
         instance.time = Date()
@@ -37,7 +43,7 @@ class DatePickerActivity : BaseEmptyActivity(){
             if (month.toString() != year_view.getMonth()) {
                 year_view.setMonth(month)
             }
-
+            tv_date_content.text = year.toString()+"年"+month+"月"+instance.get(Calendar.DAY_OF_MONTH)+"日"
         }
         custom_month_view.selectMonthCallBack {date ->
             val instance = Calendar.getInstance()
@@ -63,6 +69,10 @@ class DatePickerActivity : BaseEmptyActivity(){
                 year_view.setMonth(month)
             }
         }
+        custom_month_view.post({
+            measureHeight = custom_month_view.measuredHeight
+        })
+//        gestureDetector = GestureDetector(this, this)
         return this
     }
 
@@ -72,23 +82,8 @@ class DatePickerActivity : BaseEmptyActivity(){
 
     override fun initListener() {
         super.initListener()
-        scroll_view.setOnTouchListener(object : View.OnTouchListener{
-            override fun onTouch(v: View?, event: MotionEvent?): Boolean {
-                return custom_month_view.onTouchEvent(event)
-            }
 
-        })
-        scroll_view.setOnScrollChangeListener(object : NestedScrollView.OnScrollChangeListener{
-            override fun onScrollChange(
-                v: NestedScrollView?,
-                scrollX: Int,
-                scrollY: Int,
-                oldScrollX: Int,
-                oldScrollY: Int
-            ) {
-                TODO("Not yet implemented")
-            }
-        })
     }
+
 
 }

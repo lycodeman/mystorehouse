@@ -167,6 +167,17 @@ class Utils{
         return month == curMonth && curDay == day && curYear == year
     }
 
+    fun isInCurrentMonth(date: Date?): Boolean{
+        var calendar = Calendar.getInstance()
+        calendar.time = date
+        var month = calendar.get(Calendar.MONTH)
+        var year = calendar.get(Calendar.YEAR)
+        calendar.time = Date()
+        var curMonth = calendar.get(Calendar.MONTH)
+        var curYear = calendar.get(Calendar.YEAR)
+        return month == curMonth && curYear == year
+    }
+
     fun isSelectDay(date: Date?,selectDate: Date?): Boolean{
         if (date == null || selectDate == null){
             return false

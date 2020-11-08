@@ -14,6 +14,8 @@ import android.view.GestureDetector
 import android.view.MotionEvent
 import android.view.View
 import android.view.ViewGroup
+import android.widget.FrameLayout
+import android.widget.LinearLayout
 import com.blankj.utilcode.util.ScreenUtils
 import com.example.mystorehouse.R
 import com.example.mystorehouse.date.Utils
@@ -28,7 +30,7 @@ import java.util.*
  *     Desc   :
  *     PackageName: com.example.mystorehouse.date.newwidget
  */
-class CustomMonthView(context: Context?, attrs: AttributeSet?) : View(context, attrs),
+class CustomMonthView2(context: Context, attrs: AttributeSet?) : ViewGroup(context, attrs),
     GestureDetector.OnGestureListener {
 
     var monthStartDate = Date()
@@ -67,8 +69,9 @@ class CustomMonthView(context: Context?, attrs: AttributeSet?) : View(context, a
     var lunarDayFontMetrics: Paint.FontMetrics
     var selectDate: Date? = null
     var gestureDetector: GestureDetector
+    var mTop = 0F
     var mScrollY = 0F
-    var offsetY = 0F
+    var mTopScrollY = 0F
     var mScrollX = 0F
     var mScrollDistance = 0F
     var selectLine = 0
@@ -122,7 +125,7 @@ class CustomMonthView(context: Context?, attrs: AttributeSet?) : View(context, a
     }
 
     override fun onDraw(canvas: Canvas?) {
-        super.onDraw(canvas)
+
         if (!isDrawWeek) {
             //绘制当前月
             drawMonth(canvas, curWeekNum, 0 + mScrollX.toInt(), curMonthDays)
@@ -135,7 +138,42 @@ class CustomMonthView(context: Context?, attrs: AttributeSet?) : View(context, a
             drawWeek(canvas, lastWeekDays, -screenWidth + mScrollX.toInt())
             drawWeek(canvas, nextWeekDays, screenWidth + mScrollX.toInt())
         }
+        super.onDraw(canvas)
+    }
 
+    override fun drawChild(canvas: Canvas?, child: View?, drawingTime: Long): Boolean {
+        return super.drawChild(canvas, child, drawingTime)
+    }
+
+    override fun onLayout(changed: Boolean, l: Int, t: Int, r: Int, b: Int) {
+//        super.onLayout(changed, l, t, r, b)
+        if (childCount > 0) {
+            for (i in 0 until childCount) {
+                val childAt = getChildAt(i)
+                childAt.measure(
+                    MeasureSpec.makeMeasureSpec(screenWidth, MeasureSpec.EXACTLY)
+                    , MeasureSpec.makeMeasureSpec(0, MeasureSpec.UNSPECIFIED)
+                )
+                if (isDrawWeek) {
+                    childAt.layout(
+                        0, lineHeight - mTop.toInt(),
+                        childAt.measuredWidth,
+                        lineHeight + childAt.measuredHeight + mScrollY.toInt()
+                    )
+                } else {
+                    var i1 = lineHeight * curWeekNum - mScrollY.toInt()
+                    if (i1 < lineHeight) {
+                        i1 = lineHeight
+                    }
+                    childAt.layout(
+                        0, i1 - mTop.toInt(),
+                        childAt.measuredWidth,
+                        i1 + childAt.measuredHeight
+                    )
+                }
+
+            }
+        }
     }
 
     private fun drawMonth(
@@ -145,7 +183,7 @@ class CustomMonthView(context: Context?, attrs: AttributeSet?) : View(context, a
         monthDays: MutableList<MonthEntity>
     ) {
         for (column in weekNum downTo 1) {
-            drawY = (lineHeight / 2 + (column - 1) * lineHeight) + offsetY.toInt()
+            drawY = (lineHeight / 2 + (column - 1) * lineHeight)
             if (column > 1) {
                 drawY += (mScrollDistance * (column - 1)).toInt()
             }
@@ -314,21 +352,46 @@ class CustomMonthView(context: Context?, attrs: AttributeSet?) : View(context, a
     var heightMeasureSpec: Int = 0
     var tempHeight: Int = 0
     override fun onMeasure(widthMeasureSpec: Int, heightMeasureSpec: Int) {
-        this.widthMeasureSpec = widthMeasureSpec
+        this.widthMeasureSpec = MeasureSpec.makeMeasureSpec(screenWidth,
+            MeasureSpec.AT_MOST
+        )
+        tempHeight = 0
+        tempHeight = measureViewGroupHeight(this)
         if (!isDrawWeek) {
-            tempHeight = lineHeight * curWeekNum - mScrollY.toInt()
+            tempHeight = lineHeight * curWeekNum - mScrollY.toInt() + tempHeight
             this.heightMeasureSpec = MeasureSpec.makeMeasureSpec(
-                if(tempHeight<lineHeight)lineHeight else tempHeight,
-                MeasureSpec.getMode(heightMeasureSpec)
+                if (tempHeight < lineHeight) lineHeight else tempHeight,
+                MeasureSpec.AT_MOST
             )
         } else {
             this.heightMeasureSpec = MeasureSpec.makeMeasureSpec(
-                lineHeight,
-                MeasureSpec.getMode(heightMeasureSpec)
+                lineHeight + tempHeight,
+                MeasureSpec.AT_MOST
             )
         }
-        Log.e("TAG", "onMeasure: "+MeasureSpec.getSize(this.heightMeasureSpec))
-        super.onMeasure(widthMeasureSpec, this.heightMeasureSpec)
+        Log.e("TAG", "onMeasure: " + MeasureSpec.getSize(this.heightMeasureSpec))
+        super.onMeasure(this.widthMeasureSpec, this.heightMeasureSpec)
+    }
+
+    fun measureViewGroupHeight(viewGroup: ViewGroup): Int {
+        var tempHeight = 0
+        for (i in 0 until viewGroup.childCount) {
+            val childAt = viewGroup.getChildAt(i)
+            if (childAt is ViewGroup) {
+                tempHeight += measureViewGroupHeight(childAt)
+            } else {
+                tempHeight += measureViewHeight(childAt)
+            }
+        }
+        return tempHeight
+    }
+
+    fun measureViewHeight(view: View): Int {
+        view.measure(
+            MeasureSpec.makeMeasureSpec(screenWidth, MeasureSpec.AT_MOST)
+            , MeasureSpec.makeMeasureSpec(0, MeasureSpec.UNSPECIFIED)
+        )
+        return view.measuredWidth / screenWidth * view.measuredHeight
     }
 
     fun onResetMeasure() {
@@ -356,6 +419,7 @@ class CustomMonthView(context: Context?, attrs: AttributeSet?) : View(context, a
                             invalidate()
                         }
                         mScrollY = lineHeight * curWeekNum.toFloat()
+                        mTopScrollY = lineHeight * curWeekNum.toFloat()
                         isCollapse = false
                         collapseAnimator?.addListener(object : Animator.AnimatorListener {
                             override fun onAnimationRepeat(animation: Animator?) {
@@ -398,6 +462,7 @@ class CustomMonthView(context: Context?, attrs: AttributeSet?) : View(context, a
                             }
                         })
                         mScrollY = 0F
+                        mTopScrollY = 0F
                         isExpand = false
                         collapseAnimator?.setDuration(500)
                         collapseAnimator?.start()
@@ -425,7 +490,6 @@ class CustomMonthView(context: Context?, attrs: AttributeSet?) : View(context, a
                             nextMonthDays = Utils().getNextMonthDays(monthStartDate)
 
                             if (isDrawWeek) {
-                                selectLine = 1
                                 weekStartDate = Utils().getLastWeek(weekStartDate)
                                 curWeekDays = Utils().getWeekDays(weekStartDate)
                                 selectDate = curWeekDays[Utils().getWeekNum(selectDate)].date
@@ -433,11 +497,7 @@ class CustomMonthView(context: Context?, attrs: AttributeSet?) : View(context, a
                                 lastWeekDays = Utils().getLastWeekDays(weekStartDate)
                                 onWeekSelectCallBack?.invoke(weekStartDate)
                             } else {
-                                selectLine = 1
                                 selectDate = Utils().getFirstDayOfmonth(monthStartDate)
-                                if (Utils().isInCurrentMonth(selectDate)){
-                                    selectDate = Date()
-                                }
                                 weekStartDate = Utils().getFirstWeek(monthStartDate)
                                 curWeekDays = Utils().getWeekDays(weekStartDate)
                                 nextWeekDays = Utils().getNextWeekDays(weekStartDate)
@@ -484,11 +544,7 @@ class CustomMonthView(context: Context?, attrs: AttributeSet?) : View(context, a
                                 lastWeekDays = Utils().getLastWeekDays(weekStartDate)
                                 onWeekSelectCallBack?.invoke(weekStartDate)
                             } else {
-                                selectLine = 1
                                 selectDate = Utils().getFirstDayOfmonth(monthStartDate)
-                                if (Utils().isInCurrentMonth(selectDate)){
-                                    selectDate = Date()
-                                }
                                 weekStartDate = Utils().getFirstWeek(monthStartDate)
                                 curWeekDays = Utils().getWeekDays(weekStartDate)
                                 nextWeekDays = Utils().getNextWeekDays(weekStartDate)
@@ -593,65 +649,63 @@ class CustomMonthView(context: Context?, attrs: AttributeSet?) : View(context, a
             isHorizontal = true
         }
         if ((Math.abs(distanceX) < Math.abs(distanceY) && isHorizontal == null) || isHorizontal == false) {
-
             isHorizontal = false
             isScroll = true
             isDrawWeek = false
             mScrollY += distanceY
-//            if (selectLine > 1 && mScrollY<=selectLine*lineHeight){
-//                offsetY = -mScrollY
-//                if (offsetY>0F){
-//                    offsetY = 0F
-//                }
-//                if (mScrollY <= 0) {
-//                    mScrollY = 0F
-//                    isHorizontal = null
-//                    isScroll = false
-//                    if (mScrollDistance != 0F) {
-//                        mScrollDistance = 0F
-//                        invalidate()
-//                    }
-//                    isInterceptScroll = false
-//                }
-//            }
-//            else {
-                if ((e2?.y ?: 0F) > (e1?.y ?: 0F)) {
-                    //下滑
-                    if (mScrollY >= 0 && Math.abs(mScrollY) <= lineHeight * curWeekNum) {
-                        isExpand = true
-                        mScrollDistance = -(mScrollY - (selectLine - 1)*lineHeight) / (curWeekNum - selectLine +1)
-                        invalidate()
-                    }
-                } else {
-                    if (Math.abs(mScrollY) <= lineHeight * curWeekNum) {
-                        isCollapse = true
-                        mScrollDistance = -(mScrollY - (selectLine - 1)*lineHeight) / (curWeekNum - selectLine +1)
-                        invalidate()
-                    }
+            mTopScrollY += distanceY
+            mTop = 0F
+            if ((e2?.y ?: 0F) > (e1?.y ?: 0F)) {
+                //下滑
+                if (mScrollY >= 0 && Math.abs(mScrollY) <= lineHeight * curWeekNum) {
+                    isExpand = true
+                    mScrollDistance = -mScrollY / curWeekNum
+                    requestLayout()
+                    invalidate()
                 }
-                if (mScrollY <= 0) {
-                    mScrollY = 0F
-                    isHorizontal = null
-                    isScroll = false
-                    if (mScrollDistance != 0F) {
-                        mScrollDistance = 0F
-                        invalidate()
-                    }
-                    isInterceptScroll = false
+            } else {
+                if (Math.abs(mScrollY) <= lineHeight * curWeekNum) {
+                    isCollapse = true
+                    mScrollDistance = -mScrollY / curWeekNum
+                    requestLayout()
+                    invalidate()
                 }
-                if (mScrollY >= lineHeight * curWeekNum) {
-                    isScroll = false
-                    isInterceptScroll = false
-//                    isHorizontal = null
-                    mScrollY = lineHeight * curWeekNum.toFloat()
-                    mScrollDistance = -(mScrollY - (selectLine - 1)*lineHeight) / (curWeekNum - selectLine +1)
+            }
+            if (mScrollY <= 0) {
+                mScrollY = 0F
+                isHorizontal = null
+                isScroll = false
+                if (mScrollDistance != 0F) {
+                    mScrollDistance = 0F
+                    requestLayout()
+                    invalidate()
                 }
-//            }
+                isInterceptScroll = false
 
+            }
+            if (mScrollY >= lineHeight * curWeekNum) {
+                isScroll = false
+                isInterceptScroll = false
+//                    isHorizontal = null
+                mScrollY = lineHeight * curWeekNum.toFloat()
+                mScrollDistance = -mScrollY / curWeekNum
+                if (mTopScrollY<= measuredHeight){
+                    mTop = mTopScrollY - lineHeight*curWeekNum
+                    requestLayout()
+                }else if (mTopScrollY> measuredHeight){
+
+                    mTopScrollY = measuredHeight.toFloat()
+                    mTop = mTopScrollY - lineHeight*curWeekNum
+                    requestLayout()
+//                    mTop
+//                    mScrollDistance = -mScrollY / curWeekNum
+                }
+                //移动内容
+            }
             Log.e("TAG", "isScroll: $mScrollY")
             Log.e("TAG", "isCollapse: $isCollapse")
             Log.e("TAG", "isExpand: $isExpand")
-            requestLayout()
+//            requestLayout()
         } else if ((Math.abs(distanceX) > Math.abs(distanceY) && isHorizontal == null) || isHorizontal == true) {
             isHorizontal = true
             //左为负，右为正
@@ -669,7 +723,7 @@ class CustomMonthView(context: Context?, attrs: AttributeSet?) : View(context, a
             invalidate()
         }
 
-        return isInterceptScroll
+        return true
     }
 
     override fun onLongPress(e: MotionEvent?) {
@@ -752,6 +806,15 @@ class CustomMonthView(context: Context?, attrs: AttributeSet?) : View(context, a
                 drawY.toFloat() + padding / 2 + dpToPx(10),
                 lunarDayPaint
             )
+        }
+    }
+
+    fun scroll(scrollY: Int) {
+        if (scrollY <= lineHeight * curWeekNum) {
+            mScrollY = scrollY.toFloat()
+            mScrollDistance = -scrollY / curWeekNum.toFloat()
+//            requestLayout()
+            invalidate()
         }
     }
 

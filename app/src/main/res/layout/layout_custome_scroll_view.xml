@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical">
+
+
+
+
+    <androidx.core.widget.NestedScrollView
+        android:id="@+id/custom_scroll_view_content"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+
+
+        <LinearLayout
+            android:orientation="vertical"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+
+            <com.example.mystorehouse.date.newwidget.CustomMonthView
+                android:id="@+id/custom_month_view"
+                android:layout_width="match_parent"
+                android:layout_height="300dp"/>
+
+
+            <TextView
+                android:id="@+id/tv_content"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:paddingHorizontal="16dp"
+                android:text="选中你的日期选中你的日期选中你的日期选中你的日期选中你的日期选中
+                选中你的日期选中你的日期选中你的日期选中你的日期选中你的日期选中你的日期选中你的日期选中你的日期选中你的日期
+                选中你的日期选中你的日期选中你的日期选中你的日期选中你的日期选中你的日期选中你的日期选中你的日期选中你的日期
+                选中你的日期选中你的日期选中你的日期选中你的日期选中你的日期选中你的日期选中你的日期选中你的日期选中你的日期
+                选中你的日期选中你的日期选中你的日期选中你的日期选中你的日期选中你的日期选中你的日期选中你的日期选中你的日期
+                选中你的日期选中你的日期选中你的日期选中你的日期选中你的日期选中你的日期选中你的日期选中你的日期选中你的日期
+                选中你的日期选中你的日期选中你的日期选中你的日期选中你的日期选中你的日期选中你的日期选中你的日期选中你的日期
+                选中你的日期选中你的日期选中你的日期选中你的日期选中你的日期选中你的日期选中你的日期选中你的日期选中你的日期
+                选中你的日期选中你的日期选中你的日期选中你的日期选中你的日期选中你的日期选中你的日期选中你的日期选中你的日期
+                选中你的日期选中你的日期选中你的日期选中你的日期选中你的日期选中你的日期选中你的日期选中你的日期选中你的日期
+                选中你的日期选中你的日期选中你的日期选中你的日期选中你的日期选中你的日期选中你的日期选中你的日期选中你的日期
+                选中你的日期选中你的日期选中你的日期选中你的日期选中你的日期选中你的日期选中你的日期选中你的日期选中你的日期你的日期选中你的日期选中你的日期选中你的日期"
+                android:textColor="@android:color/black"
+                android:textSize="16sp" />
+        </LinearLayout>
+    </androidx.core.widget.NestedScrollView>
+
+
+</LinearLayout>
