@@ -71,7 +71,7 @@ class CustomMonthView(context: Context?, attrs: AttributeSet?) : View(context, a
     var offsetY = 0F
     var mScrollX = 0F
     var mScrollDistance = 0F
-    var selectLine = 0
+    var selectLine = 1
     var isScroll = false
     var isCollapse = false
     var isExpand = false
@@ -146,8 +146,8 @@ class CustomMonthView(context: Context?, attrs: AttributeSet?) : View(context, a
     ) {
         for (column in weekNum downTo 1) {
             drawY = (lineHeight / 2 + (column - 1) * lineHeight) + offsetY.toInt()
-            if (column > 1) {
-                drawY += (mScrollDistance * (column - 1)).toInt()
+            if (column >= selectLine) {
+                drawY += (mScrollDistance * (column - selectLine)).toInt()
             }
             for (row in 1..7) {
                 drawX = dayWidth / 2 + dayWidth * (row - 1) + offsetX
@@ -157,43 +157,16 @@ class CustomMonthView(context: Context?, attrs: AttributeSet?) : View(context, a
                 solarTextWidth = solarDayPaint.measureText(solarDay)
                 lunarTextWidth = lunarDayPaint.measureText(lunarDay)
                 if (Utils().isCurrentDay(monthEntity?.date)) {
-                    selectLine = column
                     var rectF = RectF(
                         drawX - Math.max(solarTextWidth, lunarTextWidth) / 2 - padding6,
                         (drawY - padding / 2 - padding6 - height14).toFloat(),
                         drawX + padding6 + Math.max(solarTextWidth, lunarTextWidth) / 2,
                         (drawY + padding / 2 + padding6 + height10).toFloat()
                     )
-                    if (column > 1 && Math.abs(mScrollDistance) > 0) {
-                        solarDayPaint.setColor(
-                            Color.argb(
-                                ((1 + mScrollDistance / lineHeight) * 155).toInt(),
-                                255,
-                                255,
-                                255
-                            )
-                        )
-                        lunarDayPaint.setColor(
-                            Color.argb(
-                                ((1 + mScrollDistance / lineHeight) * 155).toInt(),
-                                255,
-                                255,
-                                255
-                            )
-                        )
-                        selectDayBcPaint.setColor(
-                            Color.argb(
-                                ((1 + mScrollDistance / lineHeight) * 155).toInt(),
-                                218,
-                                158,
-                                158
-                            )
-                        )
-                    } else {
-                        solarDayPaint.color = getColorFromResource(R.color.white)
-                        lunarDayPaint.color = getColorFromResource(R.color.white)
-                        selectDayBcPaint.color = getColorFromResource(R.color.color_BC0202)
-                    }
+
+                    solarDayPaint.color = getColorFromResource(R.color.white)
+                    lunarDayPaint.color = getColorFromResource(R.color.white)
+                    selectDayBcPaint.color = getColorFromResource(R.color.color_BC0202)
                     canvas?.drawRoundRect(
                         rectF,
                         raduis.toFloat(),
@@ -201,43 +174,16 @@ class CustomMonthView(context: Context?, attrs: AttributeSet?) : View(context, a
                         selectDayBcPaint
                     )
                 } else if (Utils().isSelectDay(monthEntity?.date, selectDate)) {
-                    selectLine = column
                     var rectF = RectF(
                         drawX - Math.max(solarTextWidth, lunarTextWidth) / 2 - padding6,
                         (drawY - padding / 2 - padding6 - height14).toFloat(),
                         drawX + padding6 + Math.max(solarTextWidth, lunarTextWidth) / 2,
                         (drawY + padding / 2 + padding6 + height10).toFloat()
                     )
-                    if (column > 1 && Math.abs(mScrollDistance) > 0) {
-                        solarDayPaint.setColor(
-                            Color.argb(
-                                ((1 + mScrollDistance / lineHeight) * 155).toInt(),
-                                227,
-                                92,
-                                92
-                            )
-                        )
-                        lunarDayPaint.setColor(
-                            Color.argb(
-                                ((1 + mScrollDistance / lineHeight) * 155).toInt(),
-                                227,
-                                92,
-                                92
-                            )
-                        )
-                        selectDayBcPaint.setColor(
-                            Color.argb(
-                                ((1 + mScrollDistance / lineHeight) * 155).toInt(),
-                                188,
-                                2,
-                                2
-                            )
-                        )
-                    } else {
-                        solarDayPaint.color = getColorFromResource(R.color.color_E35C5C)
-                        lunarDayPaint.color = getColorFromResource(R.color.color_E35C5C)
-                        selectDayBcPaint.color = getColorFromResource(R.color.DA9E9E)
-                    }
+
+                    solarDayPaint.color = getColorFromResource(R.color.color_E35C5C)
+                    lunarDayPaint.color = getColorFromResource(R.color.color_E35C5C)
+                    selectDayBcPaint.color = getColorFromResource(R.color.DA9E9E)
                     canvas?.drawRoundRect(
                         rectF,
                         raduis.toFloat(),
@@ -246,7 +192,7 @@ class CustomMonthView(context: Context?, attrs: AttributeSet?) : View(context, a
                     )
                 } else {
                     if (monthEntity?.onTheMonth == true) {
-                        if (column > 1 && Math.abs(mScrollDistance) > 0) {
+                        if (column > selectLine && Math.abs(mScrollDistance) > 0) {
                             solarDayPaint.setColor(
                                 Color.argb(
                                     ((1 + mScrollDistance / lineHeight) * 155).toInt(),
@@ -268,7 +214,7 @@ class CustomMonthView(context: Context?, attrs: AttributeSet?) : View(context, a
                             lunarDayPaint.color = getColorFromResource(R.color.color_9A9A9A)
                         }
                     } else {
-                        if (column > 1 && Math.abs(mScrollDistance) > 0) {
+                        if (column > selectLine && Math.abs(mScrollDistance) > 0) {
                             solarDayPaint.setColor(
                                 Color.argb(
                                     ((1 + mScrollDistance / lineHeight) * 155).toInt(),
@@ -318,7 +264,7 @@ class CustomMonthView(context: Context?, attrs: AttributeSet?) : View(context, a
         if (!isDrawWeek) {
             tempHeight = lineHeight * curWeekNum - mScrollY.toInt()
             this.heightMeasureSpec = MeasureSpec.makeMeasureSpec(
-                if(tempHeight<lineHeight)lineHeight else tempHeight,
+                if (tempHeight < lineHeight) lineHeight else tempHeight,
                 MeasureSpec.getMode(heightMeasureSpec)
             )
         } else {
@@ -327,7 +273,7 @@ class CustomMonthView(context: Context?, attrs: AttributeSet?) : View(context, a
                 MeasureSpec.getMode(heightMeasureSpec)
             )
         }
-        Log.e("TAG", "onMeasure: "+MeasureSpec.getSize(this.heightMeasureSpec))
+        Log.e("TAG", "onMeasure: " + MeasureSpec.getSize(this.heightMeasureSpec))
         super.onMeasure(widthMeasureSpec, this.heightMeasureSpec)
     }
 
@@ -435,7 +381,7 @@ class CustomMonthView(context: Context?, attrs: AttributeSet?) : View(context, a
                             } else {
                                 selectLine = 1
                                 selectDate = Utils().getFirstDayOfmonth(monthStartDate)
-                                if (Utils().isInCurrentMonth(selectDate)){
+                                if (Utils().isInCurrentMonth(selectDate)) {
                                     selectDate = Date()
                                 }
                                 weekStartDate = Utils().getFirstWeek(monthStartDate)
@@ -486,7 +432,7 @@ class CustomMonthView(context: Context?, attrs: AttributeSet?) : View(context, a
                             } else {
                                 selectLine = 1
                                 selectDate = Utils().getFirstDayOfmonth(monthStartDate)
-                                if (Utils().isInCurrentMonth(selectDate)){
+                                if (Utils().isInCurrentMonth(selectDate)) {
                                     selectDate = Date()
                                 }
                                 weekStartDate = Utils().getFirstWeek(monthStartDate)
@@ -598,34 +544,36 @@ class CustomMonthView(context: Context?, attrs: AttributeSet?) : View(context, a
             isScroll = true
             isDrawWeek = false
             mScrollY += distanceY
-//            if (selectLine > 1 && mScrollY<=selectLine*lineHeight){
-//                offsetY = -mScrollY
-//                if (offsetY>0F){
-//                    offsetY = 0F
-//                }
-//                if (mScrollY <= 0) {
-//                    mScrollY = 0F
-//                    isHorizontal = null
-//                    isScroll = false
-//                    if (mScrollDistance != 0F) {
-//                        mScrollDistance = 0F
-//                        invalidate()
-//                    }
-//                    isInterceptScroll = false
-//                }
-//            }
-//            else {
+            if (selectLine > 1 && mScrollY <= (selectLine - 1) * lineHeight) {
+                offsetY = -mScrollY
+                if (offsetY > 0F) {
+                    offsetY = 0F
+                }
+                Log.e("TAG", "onScroll:offsetY  "+offsetY)
+                if (mScrollY <= 0) {
+                    mScrollY = 0F
+                    isHorizontal = null
+                    isScroll = false
+                    if (mScrollDistance != 0F) {
+                        mScrollDistance = 0F
+                        invalidate()
+                    }
+                    isInterceptScroll = false
+                }
+            } else {
                 if ((e2?.y ?: 0F) > (e1?.y ?: 0F)) {
                     //下滑
                     if (mScrollY >= 0 && Math.abs(mScrollY) <= lineHeight * curWeekNum) {
                         isExpand = true
-                        mScrollDistance = -(mScrollY - (selectLine - 1)*lineHeight) / (curWeekNum - selectLine +1)
+                        mScrollDistance =
+                            -(mScrollY - (selectLine - 1) * lineHeight) / (curWeekNum - selectLine + 1)
                         invalidate()
                     }
                 } else {
                     if (Math.abs(mScrollY) <= lineHeight * curWeekNum) {
                         isCollapse = true
-                        mScrollDistance = -(mScrollY - (selectLine - 1)*lineHeight) / (curWeekNum - selectLine +1)
+                        mScrollDistance =
+                            -(mScrollY - (selectLine - 1) * lineHeight) / (curWeekNum - selectLine + 1)
                         invalidate()
                     }
                 }
@@ -644,9 +592,10 @@ class CustomMonthView(context: Context?, attrs: AttributeSet?) : View(context, a
                     isInterceptScroll = false
 //                    isHorizontal = null
                     mScrollY = lineHeight * curWeekNum.toFloat()
-                    mScrollDistance = -(mScrollY - (selectLine - 1)*lineHeight) / (curWeekNum - selectLine +1)
+                    mScrollDistance =
+                        -(mScrollY - (selectLine - 1) * lineHeight) / (curWeekNum - selectLine + 1)
                 }
-//            }
+            }
 
             Log.e("TAG", "isScroll: $mScrollY")
             Log.e("TAG", "isCollapse: $isCollapse")
