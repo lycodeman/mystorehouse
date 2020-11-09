@@ -1,8 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="CompilerConfiguration">
-    <bytecodeTargetLevel>
+    <bytecodeTargetLevel target="1.7">
       <module name="lib" target="1.7" />
+      <module name="MyStoreHouse.app" target="1.8" />
+      <module name="MyStoreHouse.common" target="1.8" />
+      <module name="MyStoreHouse.commonanotation" target="1.8" />
     </bytecodeTargetLevel>
   </component>
 </project>
