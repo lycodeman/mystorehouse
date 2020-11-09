@@ -260,4 +260,27 @@ class Utils{
         return mnthEntityList
     }
 
+    fun getCurSelectLine(): Int {
+        var calendar = Calendar.getInstance()
+        calendar.time = Date()
+        var curWeek = calendar.get(Calendar.WEEK_OF_YEAR)
+        var days = arrayOf(1,2,3,4,5,6,7)
+        //年底需要加1
+        if (curWeek == 1 && !days.contains(calendar.get(Calendar.DAY_OF_MONTH))){
+            curWeek++
+        }
+//        if (getWeekNum(calendar.time) == 6){
+//            curWeek--
+//        }
+        calendar.set(Calendar.DAY_OF_MONTH,1)
+        var firstDayWeek =  calendar.get(Calendar.WEEK_OF_YEAR)
+//        if (firstDayWeek == 1 && !days.contains(calendar.get(Calendar.DAY_OF_MONTH))){
+//            firstDayWeek++
+//        }
+        if (getWeekNum(calendar.time) == 6){
+            firstDayWeek--
+        }
+        return  curWeek - firstDayWeek+1
+    }
+
 }

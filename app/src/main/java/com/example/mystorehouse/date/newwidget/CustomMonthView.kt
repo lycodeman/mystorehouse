@@ -103,6 +103,7 @@ class CustomMonthView(context: Context?, attrs: AttributeSet?) : View(context, a
         gestureDetector = GestureDetector(context, this)
         selectDate = monthStartDate
         setWillNotDraw(false)
+        selectLine = Utils().getCurSelectLine()
     }
 
     var onDaySelectCallBack: ((Date?) -> Unit)? = null
