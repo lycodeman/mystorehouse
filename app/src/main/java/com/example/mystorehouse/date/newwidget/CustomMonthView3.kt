@@ -266,6 +266,9 @@ class CustomMonthView3(context: Context?, attrs: AttributeSet?) : View(context, 
                     curMonthDays = Utils().getMonthDays(selectDate)
                     lastMonthDays = Utils().getLastMonthDays(selectDate)
                     nextMonthDays = Utils().getNextMonthDays(selectDate)
+                    if (Utils().isInCurrentMonth(curMonthDays[curMonthDays.size/2].date)){
+                        selectLine = Utils().getSelectLine(Date())
+                    }
 
                     onMonthSelectCallBack?.invoke(selectDate)
                 }
