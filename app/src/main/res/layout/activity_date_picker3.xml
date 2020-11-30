@@ -25,29 +25,176 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
 
-    </com.example.mystorehouse.date.newwidget.CustomMonthView3>
-
-    <androidx.core.widget.NestedScrollView
-        android:id="@+id/scroll_viewwww"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent">
-
         <LinearLayout
-            android:id="@+id/ll_content"
+            android:background="@color/FFF8F8F8"
             android:layout_width="match_parent"
-            android:layout_height="match_parent">
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:paddingHorizontal="16dp">
 
             <TextView
                 android:id="@+id/tv_date_content"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:layout_weight="1"
-                android:paddingHorizontal="16dp"
                 android:text="请选择日期"
                 android:textColor="@android:color/black"
                 android:textSize="16sp" />
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:text="
+                请选择日期请选择日期请选择日期请选择日期请选择日期
+请选择日期请选择日期请选择日期请选择日期请选择日期
+请选择日期请选择日期请选择日期请选择日期请选择日期
+请选择日期请选择日期请选择日期请选择日期请选择日期
+请选择日期请选择日期请选择日期请选择日期请选择日期
+请选择日期请选择日期请选择日期请选择日期请选择日期
+请选择日期请选择日期请选择日期请选择日期请选择日期
+请选择日期请选择日期请选择日期请选择日期请选择日期
+请选择日期请选择日期请选择日期请选择日期请选择日期
+请选择日期请选择日期请选择日期请选择日期请选择日期
+请选择日期请选择日期请选择日期请选择日期请选择日期
+请选择日期请选择日期请选择日期请选择日期请选择日期
+请选择日期请选择日期请选择日期请选择日期请选择日期
+请选择日期请选择日期请选择日期请选择日期请选择日期
+请选择日期请选择日期请选择日期请选择日期请选择日期
+请选择日期请选择日期请选择日期请选择日期请选择日期
+请选择日期请选择日期请选择日期请选择日期请选择日期
+请选择日期请选择日期请选择日期请选择日期请选择日期
+请选择日期请选择日期请选择日期请选择日期请选择日期
+请选择日期请选择日期请选择日期请选择日期请选择日期
+请选择日期请选择日期请选择日期请选择日期请选择日期
+请选择日期请选择日期请选择日期请选择日期请选择日期
+请选择日期请选择日期请选择日期请选择日期请选择日期
+请选择日期请选择日期请选择日期请选择日期请选择日期
+请选择日期请选择日期请选择日期请选择日期请选择日期
+请选择日期请选择日期请选择日期请选择日期请选择日期
+"
+                android:textColor="@android:color/black"
+                android:textSize="16sp" />
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:text="
+                请选择日期请选择日期请选择日期请选择日期请选择日期
+请选择日期请选择日期请选择日期请选择日期请选择日期
+请选择日期请选择日期请选择日期请选择日期请选择日期
+请选择日期请选择日期请选择日期请选择日期请选择日期
+请选择日期请选择日期请选择日期请选择日期请选择日期
+请选择日期请选择日期请选择日期请选择日期请选择日期
+请选择日期请选择日期请选择日期请选择日期请选择日期
+请选择日期请选择日期请选择日期请选择日期请选择日期
+请选择日期请选择日期请选择日期请选择日期请选择日期
+请选择日期请选择日期请选择日期请选择日期请选择日期
+请选择日期请选择日期请选择日期请选择日期请选择日期
+请选择日期请选择日期请选择日期请选择日期请选择日期
+请选择日期请选择日期请选择日期请选择日期请选择日期
+请选择日期请选择日期请选择日期请选择日期请选择日期
+请选择日期请选择日期请选择日期请选择日期请选择日期
+请选择日期请选择日期请选择日期请选择日期请选择日期
+请选择日期请选择日期请选择日期请选择日期请选择日期
+请选择日期请选择日期请选择日期请选择日期请选择日期
+请选择日期请选择日期请选择日期请选择日期请选择日期
+请选择日期请选择日期请选择日期请选择日期请选择日期
+请选择日期请选择日期请选择日期请选择日期请选择日期
+请选择日期请选择日期请选择日期请选择日期请选择日期
+请选择日期请选择日期请选择日期请选择日期请选择日期
+请选择日期请选择日期请选择日期请选择日期请选择日期
+请选择日期请选择日期请选择日期请选择日期请选择日期
+请选择日期请选择日期请选择日期请选择日期请选择日期
+"
+                android:textColor="@android:color/black"
+                android:textSize="16sp" />
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:text="
+                请选择日期请选择日期请选择日期请选择日期请选择日期
+请选择日期请选择日期请选择日期请选择日期请选择日期
+请选择日期请选择日期请选择日期请选择日期请选择日期
+请选择日期请选择日期请选择日期请选择日期请选择日期
+请选择日期请选择日期请选择日期请选择日期请选择日期
+请选择日期请选择日期请选择日期请选择日期请选择日期
+请选择日期请选择日期请选择日期请选择日期请选择日期
+请选择日期请选择日期请选择日期请选择日期请选择日期
+请选择日期请选择日期请选择日期请选择日期请选择日期
+请选择日期请选择日期请选择日期请选择日期请选择日期
+请选择日期请选择日期请选择日期请选择日期请选择日期
+请选择日期请选择日期请选择日期请选择日期请选择日期
+请选择日期请选择日期请选择日期请选择日期请选择日期
+请选择日期请选择日期请选择日期请选择日期请选择日期
+请选择日期请选择日期请选择日期请选择日期请选择日期
+请选择日期请选择日期请选择日期请选择日期请选择日期
+请选择日期请选择日期请选择日期请选择日期请选择日期
+请选择日期请选择日期请选择日期请选择日期请选择日期
+请选择日期请选择日期请选择日期请选择日期请选择日期
+请选择日期请选择日期请选择日期请选择日期请选择日期
+请选择日期请选择日期请选择日期请选择日期请选择日期
+请选择日期请选择日期请选择日期请选择日期请选择日期
+请选择日期请选择日期请选择日期请选择日期请选择日期
+请选择日期请选择日期请选择日期请选择日期请选择日期
+请选择日期请选择日期请选择日期请选择日期请选择日期
+请选择日期请选择日期请选择日期请选择日期请选择日期
+"
+                android:textColor="@android:color/black"
+                android:textSize="16sp" />
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:text="
+                请选择日期请选择日期请选择日期请选择日期请选择日期
+请选择日期请选择日期请选择日期请选择日期请选择日期
+请选择日期请选择日期请选择日期请选择日期请选择日期
+请选择日期请选择日期请选择日期请选择日期请选择日期
+请选择日期请选择日期请选择日期请选择日期请选择日期
+请选择日期请选择日期请选择日期请选择日期请选择日期
+请选择日期请选择日期请选择日期请选择日期请选择日期
+请选择日期请选择日期请选择日期请选择日期请选择日期
+请选择日期请选择日期请选择日期请选择日期请选择日期
+请选择日期请选择日期请选择日期请选择日期请选择日期
+请选择日期请选择日期请选择日期请选择日期请选择日期
+请选择日期请选择日期请选择日期请选择日期请选择日期
+请选择日期请选择日期请选择日期请选择日期请选择日期
+请选择日期请选择日期请选择日期请选择日期请选择日期
+请选择日期请选择日期请选择日期请选择日期请选择日期
+请选择日期请选择日期请选择日期请选择日期请选择日期
+请选择日期请选择日期请选择日期请选择日期请选择日期
+请选择日期请选择日期请选择日期请选择日期请选择日期
+请选择日期请选择日期请选择日期请选择日期请选择日期
+请选择日期请选择日期请选择日期请选择日期请选择日期
+请选择日期请选择日期请选择日期请选择日期请选择日期
+请选择日期请选择日期请选择日期请选择日期请选择日期
+请选择日期请选择日期请选择日期请选择日期请选择日期
+请选择日期请选择日期请选择日期请选择日期请选择日期
+请选择日期请选择日期请选择日期请选择日期请选择日期
+请选择日期请选择日期请选择日期请选择日期请选择日期
+"
+                android:textColor="@android:color/black"
+                android:textSize="16sp" />
+
         </LinearLayout>
-    </androidx.core.widget.NestedScrollView>
+    </com.example.mystorehouse.date.newwidget.CustomMonthView3>
+<!--    <com.example.mystorehouse.date.newwidget.CustomMonthView3-->
+<!--        android:id="@+id/custom_month_view"-->
+<!--        android:layout_width="match_parent"-->
+<!--        android:layout_height="wrap_content">-->
+
+<!--        <androidx.recyclerview.widget.RecyclerView-->
+<!--            android:id="@+id/rv"-->
+<!--            android:background="@color/FFF8F8F8"-->
+<!--            android:layout_width="match_parent"-->
+<!--            android:layout_height="match_parent"-->
+<!--            android:orientation="vertical"-->
+<!--            android:paddingHorizontal="16dp">-->
+
+<!--        </androidx.recyclerview.widget.RecyclerView>-->
+<!--    </com.example.mystorehouse.date.newwidget.CustomMonthView3>-->
 
 
 </LinearLayout>

@@ -13,6 +13,7 @@
     <color name="black">#000000</color>
     <color name="read">#D81F12</color>
     <color name="FFEAE9E9">#FFEAE9E9</color>
+    <color name="FFF8F8F8">#F8F8F8</color>
     <color name="color_FFE6E3E3">#FFE6E3E3</color>
     <color name="DA9E9E">#DA9E9E</color>
 </resources>
