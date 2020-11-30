@@ -25,10 +25,12 @@ class Utils{
         }
         calendar.set(Calendar.DAY_OF_MONTH, calendar.getActualMaximum(Calendar.DAY_OF_MONTH))
         var endWeek = calendar.get(Calendar.WEEK_OF_YEAR)
+        var isEndOfYear = false
         if (endWeek == 1){
             //到年底，如果那周包含下一年，就会为1
             calendar.set(Calendar.DAY_OF_MONTH, calendar.getActualMaximum(Calendar.DAY_OF_MONTH)-7)
             endWeek = calendar.get(Calendar.WEEK_OF_YEAR) + 1
+            isEndOfYear = true
         }
         if (calendar.get(Calendar.DAY_OF_WEEK) == 1) {
             //说明是周日
@@ -47,8 +49,12 @@ class Utils{
                     isSelect = isCurrentDay(calendar.time) || isMonthFirstDay(calendar.time,date)
                 ))
             }
-            calendar.set(Calendar.WEEK_OF_YEAR,i+startWeek + 1)
-            calendar.set(Calendar.DAY_OF_WEEK,1)
+            if (i == (endWeek - startWeek) && isEndOfYear){
+                calendar.set(Calendar.DAY_OF_YEAR,calendar.get(Calendar.DAY_OF_YEAR) + 1)
+            }else{
+                calendar.set(Calendar.WEEK_OF_YEAR,i+startWeek + 1)
+                calendar.set(Calendar.DAY_OF_WEEK,1)
+            }
             temp.add(MonthEntity((i+1)*7,
                 calendar.get(Calendar.DAY_OF_MONTH).toString(),
                 Lunar(calendar).chinaDay,
@@ -219,10 +225,27 @@ class Utils{
         var mnthEntityList = mutableListOf<MonthEntity>()
         var calendar = Calendar.getInstance()
         calendar.time = date
+        if (calendar.get(Calendar.DAY_OF_WEEK) == 1){
+            calendar.set(Calendar.DAY_OF_YEAR,calendar.get(Calendar.DAY_OF_YEAR) - 1)
+        }
         var day = calendar.get(Calendar.DAY_OF_YEAR)
+        var year = calendar.get(Calendar.YEAR)
         var dayOfWeek = calendar.get(Calendar.DAY_OF_WEEK) - 1
+        var isLastYear = false
+        var lastWeekNum = 0
         for (i in 1..7) {
-            calendar.set(Calendar.DAY_OF_YEAR, i - dayOfWeek + day)
+            if (!isLastYear && i - dayOfWeek + day > calendar.getActualMaximum(Calendar.DAY_OF_YEAR)){
+                calendar.set(Calendar.YEAR,year+1)
+                calendar.set(Calendar.MONTH,0)
+                calendar.set(Calendar.DAY_OF_MONTH,1)
+                lastWeekNum = i
+                isLastYear = true
+            }
+            if (isLastYear && i > lastWeekNum){
+                calendar.set(Calendar.DAY_OF_YEAR, i - lastWeekNum)
+            }else if (!isLastYear){
+                calendar.set(Calendar.DAY_OF_YEAR, i - dayOfWeek + day)
+            }
             mnthEntityList.add(MonthEntity(i,calendar.get(Calendar.DAY_OF_MONTH).toString()
                 ,Lunar(calendar).chinaDay,calendar.time,onTheMonth = isCurrentMonth(calendar.time,date),
                 isSelect = isCurrentDay(calendar.time)))
@@ -236,7 +259,22 @@ class Utils{
         calendar.time = date
         var day = calendar.get(Calendar.DAY_OF_YEAR)
         var dayOfWeek = calendar.get(Calendar.DAY_OF_WEEK) - 1
+        var year = calendar.get(Calendar.YEAR)
+        var isLastYear = false
+        var lastWeekNum = 0
         for (i in 1..7) {
+            if (!isLastYear && i - dayOfWeek + day > calendar.getActualMaximum(Calendar.DAY_OF_YEAR)){
+                calendar.set(Calendar.YEAR,year+1)
+                calendar.set(Calendar.MONTH,0)
+                calendar.set(Calendar.DAY_OF_MONTH,1)
+                lastWeekNum = i
+                isLastYear = true
+            }
+            if (isLastYear && i > lastWeekNum){
+                calendar.set(Calendar.DAY_OF_YEAR, i - lastWeekNum)
+            }else if (!isLastYear){
+                calendar.set(Calendar.DAY_OF_YEAR, i - dayOfWeek + day)
+            }
             calendar.set(Calendar.DAY_OF_YEAR, i - dayOfWeek + day - 7)
             mnthEntityList.add(MonthEntity(i,calendar.get(Calendar.DAY_OF_MONTH).toString()
                 ,Lunar(calendar).chinaDay,calendar.time,onTheMonth = isCurrentMonth(calendar.time,date),
@@ -251,7 +289,22 @@ class Utils{
         calendar.time = date
         var day = calendar.get(Calendar.DAY_OF_YEAR)
         var dayOfWeek = calendar.get(Calendar.DAY_OF_WEEK) - 1
+        var year = calendar.get(Calendar.YEAR)
+        var isLastYear = false
+        var lastWeekNum = 0
         for (i in 1..7) {
+            if (!isLastYear && i - dayOfWeek + day > calendar.getActualMaximum(Calendar.DAY_OF_YEAR)){
+                calendar.set(Calendar.YEAR,year+1)
+                calendar.set(Calendar.MONTH,0)
+                calendar.set(Calendar.DAY_OF_MONTH,1)
+                lastWeekNum = i
+                isLastYear = true
+            }
+            if (isLastYear && i > lastWeekNum){
+                calendar.set(Calendar.DAY_OF_YEAR, i - lastWeekNum)
+            }else if (!isLastYear){
+                calendar.set(Calendar.DAY_OF_YEAR, i - dayOfWeek + day)
+            }
             calendar.set(Calendar.DAY_OF_YEAR, i - dayOfWeek + day + 7)
             mnthEntityList.add(MonthEntity(i,calendar.get(Calendar.DAY_OF_MONTH).toString()
                 ,Lunar(calendar).chinaDay,calendar.time,onTheMonth = isCurrentMonth(calendar.time,date),
@@ -269,14 +322,8 @@ class Utils{
         if (curWeek == 1 && !days.contains(calendar.get(Calendar.DAY_OF_MONTH))){
             curWeek++
         }
-//        if (getWeekNum(calendar.time) == 6){
-//            curWeek--
-//        }
         calendar.set(Calendar.DAY_OF_MONTH,1)
         var firstDayWeek =  calendar.get(Calendar.WEEK_OF_YEAR)
-//        if (firstDayWeek == 1 && !days.contains(calendar.get(Calendar.DAY_OF_MONTH))){
-//            firstDayWeek++
-//        }
         if (getWeekNum(calendar.time) == 6){
             firstDayWeek--
         }

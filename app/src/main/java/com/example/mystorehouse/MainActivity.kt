@@ -51,6 +51,8 @@ class MainActivity : BaseEmptyActivity() {
                         2 -> ActivityManager.jump(ScreenAdapterActivity::class.java)
                         3 -> ActivityManager.jump(DownLoadActivity::class.java)
                         4 -> ActivityManager.jump(DatePickerActivity::class.java)
+                        5 -> ActivityManager.jump(DatePickerActivity2::class.java)
+                        6 -> ActivityManager.jump(DatePickerActivity3::class.java)
                     }
                 }
             }
@@ -65,6 +67,8 @@ class MainActivity : BaseEmptyActivity() {
         list.add("屏幕适配")
         list.add("断点下载测试")
         list.add("自定义日历-时间选择")
+        list.add("自定义日历-时间选择2")
+        list.add("自定义日历-时间选择3")
         adapter.setList(list)
     }
 }

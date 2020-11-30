@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical">
+
+    <com.example.mystorehouse.date.widget.YearView
+        android:id="@+id/year_view"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" />
+
+    <com.example.mystorehouse.date.widget.MonthTabView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" />
+
+    <View
+        android:id="@+id/line_view"
+        android:layout_width="match_parent"
+        android:layout_height="0.5dp"
+        android:layout_below="@id/month_tab_view"
+        android:background="#E4E4E4" />
+
+    <com.example.mystorehouse.date.newwidget.CustomMonthView2
+        android:id="@+id/custom_month_view"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+    </com.example.mystorehouse.date.newwidget.CustomMonthView2>
+
+    <androidx.core.widget.NestedScrollView
+        android:id="@+id/scroll_viewwww"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <LinearLayout
+            android:id="@+id/ll_content"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+
+            <TextView
+                android:id="@+id/tv_date_content"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:paddingHorizontal="16dp"
+                android:text="请选择日期"
+                android:textColor="@android:color/black"
+                android:textSize="16sp" />
+        </LinearLayout>
+    </androidx.core.widget.NestedScrollView>
+
+
+</LinearLayout>

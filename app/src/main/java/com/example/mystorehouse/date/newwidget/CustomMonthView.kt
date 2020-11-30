@@ -76,8 +76,11 @@ class CustomMonthView(context: Context?, attrs: AttributeSet?) : View(context, a
     var isCollapse = false
     var isExpand = false
     var isDrawWeek = false
+    var isTranslate = false
     var isHorizontal: Boolean? = null
     var collapseAnimator: ValueAnimator? = null
+    var expandAnimator: ValueAnimator? = null
+    var translateAnimator: ValueAnimator? = null
     var horizontalAnimator: ValueAnimator? = null
 
     init {
@@ -278,76 +281,16 @@ class CustomMonthView(context: Context?, attrs: AttributeSet?) : View(context, a
         super.onMeasure(widthMeasureSpec, this.heightMeasureSpec)
     }
 
-    fun onResetMeasure() {
-        heightMeasureSpec = MeasureSpec.makeMeasureSpec(
-            lineHeight * curWeekNum,
-            MeasureSpec.UNSPECIFIED
-        )
-        setMeasuredDimension(
-            MeasureSpec.getSize(widthMeasureSpec),
-            MeasureSpec.getSize(heightMeasureSpec)
-        )
-    }
-
     override fun onTouchEvent(event: MotionEvent?): Boolean {
         //在滑动范围内进行折叠和缩放
         if (isHorizontal == false) {
             if (event?.action == MotionEvent.ACTION_UP) {
                 if (isScroll) {
                     if (isCollapse) {
-                        collapseAnimator =
-                            ValueAnimator.ofFloat(mScrollDistance, -lineHeight.toFloat())
-                        collapseAnimator?.addUpdateListener {
-                            mScrollDistance = it.animatedValue as Float
-                            requestLayout()
-                            invalidate()
-                        }
-                        mScrollY = lineHeight * curWeekNum.toFloat()
-                        isCollapse = false
-                        collapseAnimator?.addListener(object : Animator.AnimatorListener {
-                            override fun onAnimationRepeat(animation: Animator?) {
-                            }
-
-                            override fun onAnimationEnd(animation: Animator?) {
-                                startDrawWeek()
-//                                requestLayout()
-                            }
-
-                            override fun onAnimationCancel(animation: Animator?) {
-                            }
-
-                            override fun onAnimationStart(animation: Animator?) {
-                            }
-                        })
-                        collapseAnimator?.setDuration(500)
-                        collapseAnimator?.start()
+                        startCollapseAnimator()
                     }
                     if (isExpand) {
-                        collapseAnimator = ValueAnimator.ofFloat(mScrollDistance, 0F)
-                        collapseAnimator?.addUpdateListener {
-                            mScrollDistance = it.animatedValue as Float
-                            requestLayout()
-                            invalidate()
-                        }
-                        collapseAnimator?.addListener(object : Animator.AnimatorListener {
-                            override fun onAnimationRepeat(animation: Animator?) {
-                            }
-
-                            override fun onAnimationEnd(animation: Animator?) {
-//                                startDrawWeek()
-//                                requestLayout()
-                            }
-
-                            override fun onAnimationCancel(animation: Animator?) {
-                            }
-
-                            override fun onAnimationStart(animation: Animator?) {
-                            }
-                        })
-                        mScrollY = 0F
-                        isExpand = false
-                        collapseAnimator?.setDuration(500)
-                        collapseAnimator?.start()
+                        startExpandAnimator()
                     }
                 }
             }
@@ -470,6 +413,116 @@ class CustomMonthView(context: Context?, attrs: AttributeSet?) : View(context, a
         }
     }
 
+    private fun startExpandAnimator() {
+        expandAnimator = ValueAnimator.ofFloat(mScrollDistance, 0F)
+        expandAnimator?.addUpdateListener {
+            mScrollDistance = it.animatedValue as Float
+            requestLayout()
+            invalidate()
+        }
+        expandAnimator?.addListener(object : Animator.AnimatorListener {
+            override fun onAnimationRepeat(animation: Animator?) {
+            }
+
+            override fun onAnimationEnd(animation: Animator?) {
+                translateAnimator?.start()
+            }
+
+            override fun onAnimationCancel(animation: Animator?) {
+            }
+
+            override fun onAnimationStart(animation: Animator?) {
+            }
+        })
+
+        isExpand = false
+        expandAnimator?.setDuration(300)
+        translateAnimator = ValueAnimator.ofFloat(offsetY, 0F)
+        translateAnimator?.setDuration(300)
+        translateAnimator?.addUpdateListener {
+            offsetY =  (it.animatedValue as Float)
+            requestLayout()
+            invalidate()
+        }
+        translateAnimator?.addListener(object : Animator.AnimatorListener {
+            override fun onAnimationRepeat(animation: Animator?) {
+            }
+
+            override fun onAnimationEnd(animation: Animator?) {
+//                expandAnimator?.start()
+                mScrollY = 0F
+            }
+
+            override fun onAnimationCancel(animation: Animator?) {
+            }
+
+            override fun onAnimationStart(animation: Animator?) {
+            }
+        })
+
+        if (isTranslate){
+
+        }else {
+            expandAnimator?.start()
+
+        }
+    }
+
+    private fun startCollapseAnimator() {
+        collapseAnimator =
+            ValueAnimator.ofFloat(mScrollDistance, -(lineHeight).toFloat())
+        collapseAnimator?.addUpdateListener {
+            mScrollDistance = it.animatedValue as Float
+            requestLayout()
+            invalidate()
+        }
+
+        isCollapse = false
+        collapseAnimator?.addListener(object : Animator.AnimatorListener {
+            override fun onAnimationRepeat(animation: Animator?) {
+            }
+
+            override fun onAnimationEnd(animation: Animator?) {
+                startDrawWeek()
+                mScrollY = lineHeight * curWeekNum.toFloat()
+            }
+
+            override fun onAnimationCancel(animation: Animator?) {
+            }
+
+            override fun onAnimationStart(animation: Animator?) {
+            }
+        })
+        collapseAnimator?.setDuration(300)
+        if (isTranslate){
+            translateAnimator = ValueAnimator.ofFloat(offsetY, -(lineHeight*(selectLine - 1)).toFloat())
+            translateAnimator?.setDuration(300)
+            translateAnimator?.addUpdateListener {
+                offsetY =  (it.animatedValue as Float)
+                requestLayout()
+                invalidate()
+            }
+            translateAnimator?.addListener(object : Animator.AnimatorListener {
+                override fun onAnimationRepeat(animation: Animator?) {
+                }
+
+                override fun onAnimationEnd(animation: Animator?) {
+                    collapseAnimator?.start()
+                }
+
+                override fun onAnimationCancel(animation: Animator?) {
+                }
+
+                override fun onAnimationStart(animation: Animator?) {
+                }
+            })
+            translateAnimator?.start()
+        }else {
+            collapseAnimator?.start()
+        }
+
+    }
+
     override fun onShowPress(e: MotionEvent?) {
         isScroll = false
     }
@@ -504,6 +557,11 @@ class CustomMonthView(context: Context?, attrs: AttributeSet?) : View(context, a
                     invalidate()
                 }
                 if (selectMonthEntity?.onTheMonth == true) {
+                    weekStartDate = selectDate!!
+                    curWeekDays = Utils().getWeekDays(weekStartDate)
+                    selectDate = curWeekDays[Utils().getWeekNum(selectDate)].date
+                    nextWeekDays = Utils().getNextWeekDays(weekStartDate)
+                    lastWeekDays = Utils().getLastWeekDays(weekStartDate)
                     onDaySelectCallBack?.invoke(selectMonthEntity?.date)
                 }
                 return true
@@ -540,12 +598,23 @@ class CustomMonthView(context: Context?, attrs: AttributeSet?) : View(context, a
             isHorizontal = true
         }
         if ((Math.abs(distanceX) < Math.abs(distanceY) && isHorizontal == null) || isHorizontal == false) {
-
+            //竖直滑动
             isHorizontal = false
             isScroll = true
             isDrawWeek = false
             mScrollY += distanceY
             if (selectLine > 1 && mScrollY <= (selectLine - 1) * lineHeight) {
+                isTranslate = true
+                if ((e2?.y ?: 0F) > (e1?.y ?: 0F)) {
+                    //下滑
+                    if (mScrollY >= 0 && Math.abs(mScrollY) <= lineHeight * curWeekNum) {
+                        isExpand = true
+                    }
+                } else {
+                    if (Math.abs(mScrollY) <= lineHeight * curWeekNum) {
+                        isCollapse = true
+                    }
+                }
                 offsetY = -mScrollY
                 if (offsetY > 0F) {
                     offsetY = 0F
@@ -562,6 +631,7 @@ class CustomMonthView(context: Context?, attrs: AttributeSet?) : View(context, a
                     isInterceptScroll = false
                 }
             } else {
+                isTranslate = false
                 if ((e2?.y ?: 0F) > (e1?.y ?: 0F)) {
                     //下滑
                     if (mScrollY >= 0 && Math.abs(mScrollY) <= lineHeight * curWeekNum) {
@@ -569,6 +639,8 @@ class CustomMonthView(context: Context?, attrs: AttributeSet?) : View(context, a
                         mScrollDistance =
                             -(mScrollY - (selectLine - 1) * lineHeight) / (curWeekNum - selectLine + 1)
                         invalidate()
+                    }else {
+                        isExpand = false
                     }
                 } else {
                     if (Math.abs(mScrollY) <= lineHeight * curWeekNum) {
@@ -576,6 +648,8 @@ class CustomMonthView(context: Context?, attrs: AttributeSet?) : View(context, a
                         mScrollDistance =
                             -(mScrollY - (selectLine - 1) * lineHeight) / (curWeekNum - selectLine + 1)
                         invalidate()
+                    }else {
+                        isCollapse = false
                     }
                 }
                 if (mScrollY <= 0) {
