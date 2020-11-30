@@ -100,7 +100,7 @@ class CustomMonthView3(context: Context?, attrs: AttributeSet?) : View(context, 
     //左向右滑为正，右向左滑为负
     var mScrollX = 0F
 
-    //变化范围-lineheighy
+    //变化范围0-lineheight
     var mScrollDistance = 0F
     var isScroll = false
     var isCollapse = false
@@ -237,13 +237,12 @@ class CustomMonthView3(context: Context?, attrs: AttributeSet?) : View(context, 
 
             override fun onAnimationEnd(animation: Animator?) {
 
-
                 if (isDrawWeek) {
-                    selectLine = 1
                     //获取周
                     selectDate = Utils().getLastWeek(selectDate)
                     curWeekDays = Utils().getWeekDays(selectDate)
                     selectDate = curWeekDays[Utils().getWeekNum(selectDate)].date
+                    selectLine = Utils().getSelectLine(selectDate)
                     nextWeekDays = Utils().getNextWeekDays(selectDate)
                     lastWeekDays = Utils().getLastWeekDays(selectDate)
                     //获取月
@@ -306,7 +305,7 @@ class CustomMonthView3(context: Context?, attrs: AttributeSet?) : View(context, 
                     selectDate = curWeekDays[Utils().getWeekNum(selectDate)].date
                     nextWeekDays = Utils().getNextWeekDays(selectDate)
                     lastWeekDays = Utils().getLastWeekDays(selectDate)
-
+                    selectLine = Utils().getSelectLine(selectDate)
                     curMonthDays = Utils().getMonthDays(selectDate)
                     lastMonthDays = Utils().getLastMonthDays(selectDate)
                     nextMonthDays = Utils().getNextMonthDays(selectDate)
@@ -321,6 +320,9 @@ class CustomMonthView3(context: Context?, attrs: AttributeSet?) : View(context, 
                     lastMonthDays = Utils().getLastMonthDays(selectDate)
                     nextMonthDays = Utils().getNextMonthDays(selectDate)
                     selectLine = 1
+                    if (Utils().isInCurrentMonth(curMonthDays[curMonthDays.size/2].date)){
+                        selectLine = Utils().getSelectLine(Date())
+                    }
                     curWeekDays = Utils().getWeekDays(selectDate)
                     nextWeekDays = Utils().getNextWeekDays(selectDate)
                     lastWeekDays = Utils().getLastWeekDays(selectDate)
@@ -346,6 +348,7 @@ class CustomMonthView3(context: Context?, attrs: AttributeSet?) : View(context, 
     }
 
     private fun startExpandAnimator() {
+//        selectLine = Utils().getSelectLine(selectDate)
         expandAnimator = ValueAnimator.ofFloat(mScrollDistance, 0F)
         expandAnimator?.addUpdateListener {
             mScrollDistance = it.animatedValue as Float
@@ -384,7 +387,7 @@ class CustomMonthView3(context: Context?, attrs: AttributeSet?) : View(context, 
             override fun onAnimationEnd(animation: Animator?) {
 //                expandAnimator?.start()
                 mScrollY = 0F
-
+//                selectLine = Utils().getSelectLine(selectDate)
                 translateY = 0F
                 invalidate()
                 requestLayout()
@@ -524,7 +527,9 @@ class CustomMonthView3(context: Context?, attrs: AttributeSet?) : View(context, 
                 lunarDay = monthEntity?.lunarDay ?: ""
                 solarTextWidth = solarDayPaint.measureText(solarDay)
                 lunarTextWidth = lunarDayPaint.measureText(lunarDay)
-                if (Utils().isCurrentDay(monthEntity?.date)) {
+                //column*row >=6不在月初那几天
+                if (Utils().isCurrentDay(monthEntity?.date) &&
+                    Utils().isSameMonth(selectDate,monthEntity?.date)) {
                     //绘制当前天
                     var rectF = RectF(
                         drawX - Math.max(solarTextWidth, lunarTextWidth) / 2 - padding6,
@@ -535,7 +540,7 @@ class CustomMonthView3(context: Context?, attrs: AttributeSet?) : View(context, 
                     if (column > selectLine && Math.abs(mScrollDistance) > 0) {
                         solarDayPaint.setColor(
                             Color.argb(
-                                ((1 - mScrollDistance / lineHeight) * 255).toInt(),
+                                ((1 - (Math.abs(mScrollDistance) / lineHeight)) * 255).toInt(),
                                 255,
                                 255,
                                 255
@@ -543,7 +548,7 @@ class CustomMonthView3(context: Context?, attrs: AttributeSet?) : View(context, 
                         )
                         lunarDayPaint.setColor(
                             Color.argb(
-                                ((1 - mScrollDistance / lineHeight) * 255).toInt(),
+                                ((1 - (Math.abs(mScrollDistance) / lineHeight)) * 255).toInt(),
                                 255,
                                 255,
                                 255
@@ -551,12 +556,13 @@ class CustomMonthView3(context: Context?, attrs: AttributeSet?) : View(context, 
                         )
                         selectDayBcPaint.setColor(
                             Color.argb(
-                                ((1 - mScrollDistance / lineHeight) * 255).toInt(),
-                                218,
-                                158,
-                                158
+                                ((1 - (Math.abs(mScrollDistance) / lineHeight)) * 255).toInt(),
+                                188,
+                                2,
+                                2
                             )
                         )
+                        Log.e("TAG", "onDrawMonth: "+(1 - (Math.abs(mScrollDistance) / lineHeight)) * 255)
                     } else {
                         solarDayPaint.color = getColorFromResource(R.color.white)
                         lunarDayPaint.color = getColorFromResource(R.color.white)
@@ -579,7 +585,7 @@ class CustomMonthView3(context: Context?, attrs: AttributeSet?) : View(context, 
                     if (column > selectLine && Math.abs(mScrollDistance) > 0) {
                         solarDayPaint.setColor(
                             Color.argb(
-                                ((1 - mScrollDistance / lineHeight) * 255).toInt(),
+                                ((1 - (Math.abs(mScrollDistance) / lineHeight)) * 255).toInt(),
                                 227,
                                 92,
                                 92
@@ -587,7 +593,7 @@ class CustomMonthView3(context: Context?, attrs: AttributeSet?) : View(context, 
                         )
                         lunarDayPaint.setColor(
                             Color.argb(
-                                ((1 - mScrollDistance / lineHeight) * 255).toInt(),
+                                ((1 - (Math.abs(mScrollDistance) / lineHeight)) * 255).toInt(),
                                 227,
                                 92,
                                 92
@@ -595,7 +601,7 @@ class CustomMonthView3(context: Context?, attrs: AttributeSet?) : View(context, 
                         )
                         selectDayBcPaint.setColor(
                             Color.argb(
-                                ((1 - mScrollDistance / lineHeight) * 255).toInt(),
+                                ((1 - (Math.abs(mScrollDistance) / lineHeight)) * 255).toInt(),
                                 188,
                                 2,
                                 2
@@ -699,7 +705,8 @@ class CustomMonthView3(context: Context?, attrs: AttributeSet?) : View(context, 
             lunarDay = monthEntity?.lunarDay ?: ""
             solarTextWidth = solarDayPaint.measureText(solarDay)
             lunarTextWidth = lunarDayPaint.measureText(lunarDay)
-            if (Utils().isCurrentDay(monthEntity?.date)) {
+            if (Utils().isCurrentDay(monthEntity?.date) &&
+                Utils().isSameMonth(selectDate,monthEntity?.date)) {
                 var rectF = RectF(
                     drawX - Math.max(solarTextWidth, lunarTextWidth) / 2 - padding6,
                     (drawY - padding4 / 2 - padding6 - height14).toFloat(),
@@ -793,10 +800,10 @@ class CustomMonthView3(context: Context?, attrs: AttributeSet?) : View(context, 
             if (((event?.x ?: 0F) <= screenWidth) && (event?.y ?: 0F) < lineHeight * curWeekNum) {
                 var col = (((event?.y ?: 0F) / lineHeight) + 1).toInt()
                 var row = (((event?.x ?: 0F) / dayWidth)).toInt()
-                selectLine = col
                 selectMonthEntity =
                     curMonthDays[((col - 1) * 7) + row]
                 if (selectMonthEntity?.onTheMonth == true) {
+                    selectLine = col
                     this.selectDate = selectMonthEntity!!.date
                     initWeekDays()
                     invalidate()

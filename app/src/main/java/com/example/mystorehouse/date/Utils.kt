@@ -1,5 +1,6 @@
 package com.example.mystorehouse.date
 
+import android.util.Log
 import com.example.mystorehouse.date.entity.MonthEntity
 import java.util.*
 
@@ -85,6 +86,7 @@ class Utils{
         return weekNum == num
     }
 
+    //返回周一到周日 0-6
     fun getWeekNum(curDate: Date?): Int{
         val calendar = Calendar.getInstance()
         calendar.time = curDate
@@ -328,6 +330,40 @@ class Utils{
             firstDayWeek--
         }
         return  curWeek - firstDayWeek+1
+    }
+
+    fun isSameMonth(selectDate: Date, date: Date?): Boolean {
+        var calendar = Calendar.getInstance()
+        calendar.time = selectDate
+        var selectYear = calendar.get(Calendar.YEAR)
+        var selectMonth = calendar.get(Calendar.MONTH)
+        calendar.time = date
+        var year = calendar.get(Calendar.YEAR)
+        var month = calendar.get(Calendar.MONTH)
+        return  selectYear == year && month == selectMonth
+    }
+
+    fun getSelectLine(selectDate: Date): Int {
+        var calender = Calendar.getInstance()
+        var firstDayOfMonth = Utils().getFirstDayOfmonth(selectDate)
+
+        calender.time = firstDayOfMonth
+        var monthStartWeek = calender.get(Calendar.WEEK_OF_YEAR)
+        //周日
+        if (getWeekNum(firstDayOfMonth) == 6){
+            monthStartWeek--
+        }
+        calender.time = selectDate
+        var monthSelectWeek = calender.get(Calendar.WEEK_OF_YEAR)
+        if (monthSelectWeek == 1){
+            //到年底，如果那周包含下一年，就会为1
+            calender.set(Calendar.DAY_OF_MONTH, calender.getActualMaximum(Calendar.DAY_OF_MONTH)-7)
+            monthSelectWeek = calender.get(Calendar.WEEK_OF_YEAR) + 1
+        }
+        if (getWeekNum(selectDate) == 6){
+            monthSelectWeek--
+        }
+        return monthSelectWeek - monthStartWeek+1
     }
 
 }
