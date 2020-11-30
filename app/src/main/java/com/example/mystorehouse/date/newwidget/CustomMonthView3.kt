@@ -100,7 +100,7 @@ class CustomMonthView3(context: Context?, attrs: AttributeSet?) : View(context, 
     //左向右滑为正，右向左滑为负
     var mScrollX = 0F
 
-    //变化范围0-lineheight
+    //变化范围0-lineheight 负值
     var mScrollDistance = 0F
     var isScroll = false
     var isCollapse = false
@@ -476,7 +476,7 @@ class CustomMonthView3(context: Context?, attrs: AttributeSet?) : View(context, 
         tempHeight = 0
 //        tempHeight = measureViewGroupHeight(this)
         if (!isDrawWeek) {
-            tempHeight = lineHeight * curWeekNum + translateY.toInt() + mScrollDistance.toInt()*(curWeekNum - selectLine+1).toInt()
+            tempHeight = lineHeight * curWeekNum + translateY.toInt() + mScrollDistance.toInt()*(curWeekNum - selectLine).toInt()
             this.heightMeasureSpec = MeasureSpec.makeMeasureSpec(
                 if (tempHeight < lineHeight) lineHeight else tempHeight,
                 MeasureSpec.AT_MOST
