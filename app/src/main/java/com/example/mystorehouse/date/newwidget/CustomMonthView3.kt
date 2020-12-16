@@ -108,6 +108,7 @@ class CustomMonthView3(context: Context?, attrs: AttributeSet?) : ViewGroup(cont
     var isTranslate = false
     var isCollapseOver = false
     var isNeedScrollContent = false
+    var isTopScrollToBottom: Boolean? = null
 
     //是否是水平方向滑动
     var isHorizontal: Boolean? = null
@@ -126,6 +127,9 @@ class CustomMonthView3(context: Context?, attrs: AttributeSet?) : ViewGroup(cont
     var onWeekSelectCallBack: ((Date?) -> Unit)? = null
     var whiteBcRect = RectF()
     var whiteBcPaint = Paint()
+
+    var calenderType: String = CalenderType.TYPE_TRANSLATION
+    var lastCalenderType: String = CalenderType.TYPE_TRANSLATION
 
     init {
         //初始化月
@@ -201,14 +205,39 @@ class CustomMonthView3(context: Context?, attrs: AttributeSet?) : ViewGroup(cont
         //在滑动范围内进行折叠和缩放
         if (isHorizontal == false) {
             if (event?.action == MotionEvent.ACTION_UP) {
-                if (isScroll && !isNeedScrollContent) {
-                    if (isCollapse) {
-                        startCollapseAnimator()
-                    }
-                    if (isExpand) {
+                Log.e("TAG", "onTouchEvent: isTopScrollToBottom "+isTopScrollToBottom )
+                if (isTopScrollToBottom == true) {
+                    if(calenderType == CalenderType.TYPE_TRANSLATION){
+                        isTranslate = false
                         startExpandAnimator()
+                    }else if(calenderType == CalenderType.TYPE_EXPAND){
+                        isTranslate = true
+                        startExpandAnimator()
+                    }else if(calenderType == CalenderType.TYPE_SCROLL_CONTENT){
+
                     }
+
+                } else if (isTopScrollToBottom == false) {
+                    if(calenderType == CalenderType.TYPE_TRANSLATION){
+                        isTranslate = true
+                        startCollapseAnimator()
+                    }else if(calenderType == CalenderType.TYPE_COLLAPSE){
+                        isTranslate = false
+                        startCollapseAnimator()
+                    }else if(calenderType == CalenderType.TYPE_SCROLL_CONTENT){
+
+                    }
+                } else {
+
                 }
+//                if (isScroll && !isNeedScrollContent) {
+//                    if (isCollapse) {
+//                        startCollapseAnimator()
+//                    }
+//                    if (isExpand) {
+//                        startExpandAnimator()
+//                    }
+//                }
             }
             val onTouchEvent = gestureDetector.onTouchEvent(event)
             return onTouchEvent
@@ -220,6 +249,7 @@ class CustomMonthView3(context: Context?, attrs: AttributeSet?) : ViewGroup(cont
                     startRightScrollToLeft()
                 }
             }
+            Log.e("TAG", "onTouchEvent: " +(event?.action == MotionEvent.ACTION_UP))
             val onTouchEvent = gestureDetector.onTouchEvent(event)
             return onTouchEvent
         } else {
@@ -228,6 +258,7 @@ class CustomMonthView3(context: Context?, attrs: AttributeSet?) : ViewGroup(cont
         }
     }
 
+    //从左向右滑动
     private fun startLeftScrollToRight() {
         horizontalAnimator = ValueAnimator.ofFloat(mScrollX, screenWidth.toFloat())
         horizontalAnimator?.addUpdateListener {
@@ -239,7 +270,7 @@ class CustomMonthView3(context: Context?, attrs: AttributeSet?) : ViewGroup(cont
             }
 
             override fun onAnimationEnd(animation: Animator?) {
-
+                isAnimatorStart = false
                 if (isDrawWeek) {
                     //获取周
                     selectDate = Utils().getLastWeek(selectDate)
@@ -285,15 +316,18 @@ class CustomMonthView3(context: Context?, attrs: AttributeSet?) : ViewGroup(cont
             }
 
             override fun onAnimationCancel(animation: Animator?) {
+                isAnimatorStart = false
             }
 
             override fun onAnimationStart(animation: Animator?) {
+                isAnimatorStart = true
             }
         })
         horizontalAnimator?.setDuration(500)
         horizontalAnimator?.start()
     }
 
+    //从右向左滑动
     private fun startRightScrollToLeft() {
         horizontalAnimator = ValueAnimator.ofFloat(mScrollX, -screenWidth.toFloat())
         horizontalAnimator?.addUpdateListener {
@@ -305,6 +339,7 @@ class CustomMonthView3(context: Context?, attrs: AttributeSet?) : ViewGroup(cont
             }
 
             override fun onAnimationEnd(animation: Animator?) {
+                isAnimatorStart = false
                 if (isDrawWeek) {
                     selectDate = Utils().getNextWeek(selectDate)
                     curWeekDays = Utils().getWeekDays(selectDate)
@@ -344,15 +379,18 @@ class CustomMonthView3(context: Context?, attrs: AttributeSet?) : ViewGroup(cont
             }
 
             override fun onAnimationCancel(animation: Animator?) {
+                isAnimatorStart = false
             }
 
             override fun onAnimationStart(animation: Animator?) {
+                isAnimatorStart = true
             }
         })
         horizontalAnimator?.setDuration(500)
         horizontalAnimator?.start()
     }
 
+    //展开动画（包括平移）
     private fun startExpandAnimator() {
 //        selectLine = Utils().getSelectLine(selectDate)
         expandAnimator = ValueAnimator.ofFloat(mScrollDistance, 0F)
@@ -366,22 +404,24 @@ class CustomMonthView3(context: Context?, attrs: AttributeSet?) : ViewGroup(cont
             }
 
             override fun onAnimationEnd(animation: Animator?) {
-                mScrollDistance = 0F
                 translateAnimator?.start()
+                calenderType = CalenderType.TYPE_TRANSLATION
             }
 
             override fun onAnimationCancel(animation: Animator?) {
+                isAnimatorStart = false
             }
 
             override fun onAnimationStart(animation: Animator?) {
                 isNeedScrollContent = false
+                isAnimatorStart = true
             }
         })
 
         isExpand = false
-        expandAnimator?.setDuration(300)
+        expandAnimator?.setDuration(100)
         translateAnimator = ValueAnimator.ofFloat(translateY, 0F)
-        translateAnimator?.setDuration(300)
+        translateAnimator?.setDuration(100)
         translateAnimator?.addUpdateListener {
             translateY = (it.animatedValue as Float)
             requestLayout()
@@ -392,19 +432,22 @@ class CustomMonthView3(context: Context?, attrs: AttributeSet?) : ViewGroup(cont
             }
 
             override fun onAnimationEnd(animation: Animator?) {
-//                expandAnimator?.start()
+                calenderType = CalenderType.TYPE_EXPAND
                 mScrollY = 0F
-//                selectLine = Utils().getSelectLine(selectDate)
                 translateY = 0F
+                mScrollDistance = 0F
                 invalidate()
                 requestLayout()
+                isAnimatorStart = false
             }
 
             override fun onAnimationCancel(animation: Animator?) {
+                isAnimatorStart = false
             }
 
             override fun onAnimationStart(animation: Animator?) {
                 isNeedScrollContent = false
+                isAnimatorStart = true
                 Log.e("TAG", "onAnimationStart: isNeedScrollContent = false 0")
             }
         })
@@ -417,6 +460,7 @@ class CustomMonthView3(context: Context?, attrs: AttributeSet?) : ViewGroup(cont
         }
     }
 
+    //收缩动画（包括平移）
     private fun startCollapseAnimator() {
         collapseAnimator =
             ValueAnimator.ofFloat(mScrollDistance, -(lineHeight).toFloat())
@@ -432,29 +476,36 @@ class CustomMonthView3(context: Context?, attrs: AttributeSet?) : ViewGroup(cont
             }
 
             override fun onAnimationEnd(animation: Animator?) {
+                Log.e("TAG", "onAnimationEnd: " )
                 isDrawWeek = true
-                mScrollY = lineHeight * (curWeekNum).toFloat()
+                calenderType = CalenderType.TYPE_SCROLL_CONTENT
+                mScrollY = lineHeight * (curWeekNum-1).toFloat()
                 translateY = -lineHeight * (selectLine - 1).toFloat()
                 mScrollDistance = -(lineHeight).toFloat()
                 invalidate()
                 requestLayout()
                 isCollapseOver = true
                 isNeedScrollContent = true
+                isAnimatorStart = false
 //                startDrawWeek()
 //                mScrollY = lineHeight * curWeekNum.toFloat()
             }
 
             override fun onAnimationCancel(animation: Animator?) {
+                Log.e("TAG", "onAnimationCancel: " )
+                isAnimatorStart = false
             }
 
             override fun onAnimationStart(animation: Animator?) {
+                isAnimatorStart = true
+                Log.e("TAG", "onAnimationStart: " )
             }
         })
-        collapseAnimator?.setDuration(300)
+        collapseAnimator?.setDuration(100)
         if (isTranslate) {
             translateAnimator =
                 ValueAnimator.ofFloat(translateY, -(lineHeight * (selectLine - 1)).toFloat())
-            translateAnimator?.setDuration(300)
+            translateAnimator?.setDuration(100)
             translateAnimator?.addUpdateListener {
                 translateY = (it.animatedValue as Float)
                 requestLayout()
@@ -466,12 +517,15 @@ class CustomMonthView3(context: Context?, attrs: AttributeSet?) : ViewGroup(cont
 
                 override fun onAnimationEnd(animation: Animator?) {
                     collapseAnimator?.start()
+                    calenderType = CalenderType.TYPE_COLLAPSE
                 }
 
                 override fun onAnimationCancel(animation: Animator?) {
+                    isAnimatorStart = false
                 }
 
                 override fun onAnimationStart(animation: Animator?) {
+                    isAnimatorStart = true
                 }
             })
             translateAnimator?.start()
@@ -484,6 +538,7 @@ class CustomMonthView3(context: Context?, attrs: AttributeSet?) : ViewGroup(cont
     override fun onMeasure(widthMeasureSpec: Int, heightMeasureSpec: Int) {
         if (realHeight == 0) {
             realHeight = MeasureSpec.getSize(heightMeasureSpec)
+            Log.e("TAG", "onMeasure: realHeight = " + realHeight)
         }
         this.widthMeasureSpec = MeasureSpec.makeMeasureSpec(
             screenWidth,
@@ -494,7 +549,7 @@ class CustomMonthView3(context: Context?, attrs: AttributeSet?) : ViewGroup(cont
         if (childCount > 0) {
             for (i in 0..childCount) {
                 val childAt = getChildAt(i)
-                if (childAt is LinearLayout) {
+                if (childAt is ViewGroup) {
                     childAt.measure(
                         MeasureSpec.makeMeasureSpec(screenWidth, MeasureSpec.EXACTLY)
                         , MeasureSpec.makeMeasureSpec(0, MeasureSpec.UNSPECIFIED)
@@ -510,16 +565,16 @@ class CustomMonthView3(context: Context?, attrs: AttributeSet?) : ViewGroup(cont
                         mScrollDistance.toInt() * (curWeekNum - selectLine) + allChildHeight
             this.heightMeasureSpec = MeasureSpec.makeMeasureSpec(
                 if (tempHeight < lineHeight) lineHeight else tempHeight,
-                MeasureSpec.AT_MOST
+                MeasureSpec.EXACTLY
             )
         } else {
             this.heightMeasureSpec = MeasureSpec.makeMeasureSpec(
-                lineHeight + tempHeight + allChildHeight,
+                realHeight,
                 MeasureSpec.AT_MOST
             )
         }
-        super.onMeasure(this.widthMeasureSpec, this.heightMeasureSpec)
-//        super.onMeasure(widthMeasureSpec, heightMeasureSpec)
+//        super.onMeasure(this.widthMeasureSpec, this.heightMeasureSpec)
+        super.onMeasure(widthMeasureSpec, heightMeasureSpec)
     }
 
     override fun onDraw(canvas: Canvas?) {
@@ -574,6 +629,7 @@ class CustomMonthView3(context: Context?, attrs: AttributeSet?) : ViewGroup(cont
         offsetX: Int,
         monthDays: MutableList<MonthEntity>
     ) {
+        Log.e("TAG", "onDrawMonth: ")
         for (column in weekNum downTo 1) {
             //倒序画周
             drawY = (lineHeight / 2 + (column - 1) * lineHeight) + translateY.toInt()
@@ -748,15 +804,6 @@ class CustomMonthView3(context: Context?, attrs: AttributeSet?) : ViewGroup(cont
         }
     }
 
-    //绘制三屏weekview 参照之前month的绘制
-    fun startDrawWeek() {
-        isDrawWeek = true
-        curWeekDays = Utils().getWeekDays(selectDate)
-        nextWeekDays = Utils().getNextWeekDays(selectDate)
-        lastWeekDays = Utils().getLastWeekDays(selectDate)
-        invalidate()
-    }
-
     fun onDrawWeek(canvas: Canvas?, dayList: MutableList<MonthEntity>, offsetX: Int) {
         drawY = lineHeight / 2
         for (row in 1..dayList.size) {
@@ -835,7 +882,7 @@ class CustomMonthView3(context: Context?, attrs: AttributeSet?) : ViewGroup(cont
         if (childCount > 0) {
             for (i in 0..childCount) {
                 val childAt = getChildAt(i)
-                if (childAt is LinearLayout) {
+                if (childAt is ViewGroup) {
                     childAt.measure(
                         MeasureSpec.makeMeasureSpec(screenWidth, MeasureSpec.EXACTLY)
                         , MeasureSpec.makeMeasureSpec(0, MeasureSpec.UNSPECIFIED)
@@ -854,8 +901,8 @@ class CustomMonthView3(context: Context?, attrs: AttributeSet?) : ViewGroup(cont
                         )
                     } else {
                         childAt.layout(
-                            0, lineHeight + mContentScrollY.toInt(), screenWidth,
-                            childAt.measuredHeight + lineHeight + mContentScrollY.toInt()
+                            0, -lineHeight+ mContentScrollY.toInt(), screenWidth,
+                            childAt.measuredHeight - lineHeight +  mContentScrollY.toInt()
                         )
                     }
                 }
@@ -879,9 +926,13 @@ class CustomMonthView3(context: Context?, attrs: AttributeSet?) : ViewGroup(cont
                     this.selectDate = selectMonthEntity!!.date
                     invalidate()
                     initWeekDays()
-                }
-                if (selectMonthEntity?.onTheMonth == true) {
                     onDaySelectCallBack?.invoke(selectMonthEntity?.date)
+                } else {
+                    if (selectMonthEntity?.date?.time ?: 0 > selectDate.time) {
+                        startRightScrollToLeft()
+                    } else {
+                        startLeftScrollToRight()
+                    }
                 }
                 return true
             }
@@ -896,9 +947,13 @@ class CustomMonthView3(context: Context?, attrs: AttributeSet?) : ViewGroup(cont
                     this.selectDate = selectMonthEntity!!.date
                     initWeekDays()
                     invalidate()
-                }
-                if (selectMonthEntity?.onTheMonth == true) {
                     onDaySelectCallBack?.invoke(selectMonthEntity?.date)
+                } else {
+                    if (selectMonthEntity?.date?.time ?: 0 > selectDate.time) {
+                        startRightScrollToLeft()
+                    } else {
+                        startLeftScrollToRight()
+                    }
                 }
                 return true
             }
@@ -907,8 +962,11 @@ class CustomMonthView3(context: Context?, attrs: AttributeSet?) : ViewGroup(cont
     }
 
     override fun onDown(e: MotionEvent?): Boolean {
+        //事件起始重置滑动方向
+        isHorizontal = null
         return true
     }
+
 
     override fun onFling(
         e1: MotionEvent?,
@@ -916,27 +974,29 @@ class CustomMonthView3(context: Context?, attrs: AttributeSet?) : ViewGroup(cont
         velocityX: Float,
         velocityY: Float
     ): Boolean {
-        Log.e("TAG", "onFling: " + ((e2?.y ?: 0F) - (e1?.y ?: 0F)))
-        Log.e("TAG", "onFling: isNeedScrollContent = " + isNeedScrollContent)
-        //下滑
-        //在可滑动范围内
-        if (isNeedScrollContent) {
+        if (calenderType == CalenderType.TYPE_SCROLL_CONTENT && isHorizontal == false){
             var lastContentScrollY = mContentScrollY
-            mContentScrollY += 3 * ((e2?.y ?: 0F) - (e1?.y ?: 0F))
+            mContentScrollY += ((e2?.y ?: 0F) - (e1?.y ?: 0F))
             if (mContentScrollY < 0 && Math.abs(mContentScrollY) >= allChildHeight - realHeight + lineHeight) {
                 mContentScrollY = -allChildHeight + realHeight.toFloat() - lineHeight
             }
+            if (Math.abs(mContentScrollY) > allChildHeight - realHeight - lineHeight) {
+                mContentScrollY = -(allChildHeight - realHeight - lineHeight).toFloat()
+            }
             if (mContentScrollY > 0) {
                 mContentScrollY = 0F
+                isNeedScrollContent = false
+                mScrollY = lineHeight * (curWeekNum-1).toFloat()
+                translateY = -lineHeight * (selectLine - 1).toFloat()
+                mScrollDistance = -(lineHeight).toFloat()
             }
             startFlingAnimator(lastContentScrollY, mContentScrollY)
         }
-
-        return true
-
+        return calenderType == CalenderType.TYPE_SCROLL_CONTENT
     }
 
     var flingAnimator: ValueAnimator? = null
+    var isAnimatorStart = false
     private fun startFlingAnimator(lastContentScrollY: Float, mContentScrollY: Float) {
         if (flingAnimator?.isStarted == true) {
             flingAnimator?.cancel()
@@ -954,13 +1014,15 @@ class CustomMonthView3(context: Context?, attrs: AttributeSet?) : ViewGroup(cont
             }
 
             override fun onAnimationEnd(animation: Animator?) {
-
+                isAnimatorStart = false
             }
 
             override fun onAnimationCancel(animation: Animator?) {
+                isAnimatorStart = false
             }
 
             override fun onAnimationStart(animation: Animator?) {
+                isAnimatorStart = true
             }
         })
         flingAnimator?.start()
@@ -972,194 +1034,117 @@ class CustomMonthView3(context: Context?, attrs: AttributeSet?) : ViewGroup(cont
         distanceX: Float,
         distanceY: Float
     ): Boolean {
-        if (isDrawWeek && Math.abs(distanceX) > Math.abs(distanceY) && Math.abs(distanceX) > minTouchSlop) {
-            isHorizontal = true
+        if (isAnimatorStart) {
+            return false
         }
-        if ((Math.abs(distanceX) < Math.abs(distanceY) && isHorizontal == null
-                    && Math.abs(distanceY) > minTouchSlop) || isHorizontal == false
-        ) {
+        if (isHorizontal == null){
+            isHorizontal = if(Math.abs(distanceX) > Math.abs(distanceY) && Math.abs(distanceX) > minTouchSlop){
+                true
+            }else if (Math.abs(distanceY) > Math.abs(distanceX) && Math.abs(distanceY) > minTouchSlop){
+                false
+            }else {
+                null
+            }
+        }
+        if (isHorizontal == false) {
             //竖直方向滑动 控制是平移还是渐变透明度变化
             isHorizontal = false
-//            if (mContentScrollY)
-//            if (isDrawWeek) {
-//                isScroll = false
-//                if (allChildHeight > realHeight) {
-//                    Log.e("TAG", "onScroll mContentScrollY : $mContentScrollY")
-//                    mContentScrollY -= distanceY
-//                    isNeedScrollContent = true
-//                    if (mContentScrollY <= 0 && Math.abs(mContentScrollY) >= allChildHeight - realHeight + lineHeight) {
-//                        mContentScrollY = -allChildHeight + realHeight.toFloat() - lineHeight
-//                        isDrawWeek = false
-//                    }
-//                    if (mContentScrollY > 0 && (e2?.y ?: 0F) > (e1?.y ?: 0F)) {
-//                        //向下
-//                        mContentScrollY = 0F
-//                        isExpand = true
-//                        isCollapse = false
-//                        isDrawWeek = false
-//                        Log.e("TAG", "onAnimationStart: isNeedScrollContent = false 1")
-//                        return true
-//                    }
-//                    invalidate()
-//                    requestLayout()
-//                } else {
-//                    mContentScrollY -= 0
-//                    isExpand = true
-//                    isCollapse = false
-//                    isNeedScrollContent = false
-//                    Log.e("TAG", "onAnimationStart: isNeedScrollContent = false 2")
-//                }
-//
-//            } else {
-//                isScroll = true
-//                isExpand = true
-//                isCollapse = false
-//                mContentScrollY = 0F
-//                isNeedScrollContent = false
-//                Log.e("TAG", "onAnimationStart: isNeedScrollContent = false 3")
-//
-//            }
-            Log.e("TAG", "onScroll mContentScrollY : $mContentScrollY")
-            Log.e("TAG", "onScroll mScrollDistance : $mScrollDistance")
-            Log.e("TAG", "onScroll translateY : $translateY")
-            //
-            if (((Math.abs(mScrollDistance) == lineHeight.toFloat() && translateY.toInt()<lineHeight*(selectLine-1)) ||
-                        (Math.abs(mScrollDistance) == 0F && translateY.toInt() == lineHeight*(selectLine-1))) && mContentScrollY.toInt() == 0){
-                //滑动到零界点时置反
-                if ((e2?.y ?: 0F) > (e1?.y ?: 0F)) {
-                    //下滑
-                    isNeedScrollContent = false
-                    isDrawWeek = false
-                }else{
-                    isNeedScrollContent = true
-                    isDrawWeek = true
-                }
+            mScrollY += distanceY
+            if (mScrollY < 0) {
+                mScrollY = 0F
             }
-            if (!isNeedScrollContent) {
-                isScroll = true
-                mScrollY += distanceY
-                if ((e2?.y ?: 0F) > (e1?.y ?: 0F)) {
-                    //下滑
-                    if (mScrollY >= 0 && Math.abs(mScrollY) <= lineHeight * curWeekNum) {
-                        isExpand = true
-                        isCollapse = false
-                        //在日历绘制的区间范围内
-                        if (Math.abs(mScrollY) <= lineHeight * (selectLine - 1)) {
-                            //如果小于这个高度值时，做向上平移移动
-                            translateY = -mScrollY
-                            mScrollDistance = 0F
-                            Log.e("TAG", "onScroll: mScrollDistance = 0")
-                            isTranslate = false
-                            requestLayout()
-                            invalidate()
-                        } else if (Math.abs(mScrollDistance) <= lineHeight) {
-                            translateY = -lineHeight * (selectLine - 1).toFloat()
-                            if (selectLine == curWeekNum) {
-                                mScrollDistance = 0F
-                                Log.e("TAG", "onScroll: mScrollDistance = 1")
-                            } else {
-                                mScrollDistance =
-                                    -(mScrollY - lineHeight * (selectLine - 1)) / (curWeekNum - selectLine)
-                            }
-
-                            if (Math.abs(mScrollDistance) > lineHeight) {
-                                mScrollDistance = -lineHeight.toFloat()
-                            }
-                            isTranslate = true
-                            requestLayout()
-                            invalidate()
-                        } else {
-                            translateY = 0F
-                            mScrollDistance = 0F
-                            Log.e("TAG", "onScroll: mScrollDistance = 2")
-                        }
-                    } else {
-                        isExpand = false
-                    }
-                } else {
-                    //上滑
-                    isExpand = false
-                    isCollapse = true
-                    if (Math.abs(mScrollY) <= lineHeight * curWeekNum) {
-                        //在日历绘制的区间范围内
-                        if (Math.abs(mScrollY) <= lineHeight * (selectLine - 1)) {
-                            //如果小于这个高度值时，做向上平移移动
-                            translateY = -mScrollY
-                            mScrollDistance = 0F
-                            Log.e("TAG", "onScroll: mScrollDistance = 3")
-                            isTranslate = true
-                            requestLayout()
-                            invalidate()
-                        } else if (Math.abs(mScrollDistance) <= lineHeight) {
-                            translateY = -lineHeight * (selectLine - 1).toFloat()
-                            if (selectLine == curWeekNum) {
-                                mScrollDistance = 0F
-                            } else {
-                                mScrollDistance =
-                                    -(mScrollY - lineHeight * (selectLine - 1)) / (curWeekNum - selectLine)
-                            }
-                            isTranslate = false
-                            if (Math.abs(mScrollDistance) > lineHeight) {
-                                mScrollDistance = -lineHeight.toFloat()
-                            }
-                            requestLayout()
-                            invalidate()
-                        }
-                    } else {
-                        isCollapse = false
-                    }
-                }
-                if (mScrollY <= 0) {
-                    mScrollY = 0F
-                    isHorizontal = null
-                    isScroll = false
-                    if (mScrollDistance != 0F) {
-                        mScrollDistance = 0F
-                        requestLayout()
-                        invalidate()
-                    }
-
-                }
-                if (mScrollY >= lineHeight * (curWeekNum)) {
-                    isScroll = false
-                    mScrollY = lineHeight * (curWeekNum).toFloat()
+            if (mScrollY > allChildHeight + lineHeight*curWeekNum) {
+                mScrollY = allChildHeight + lineHeight*curWeekNum.toFloat()
+            }
+            if ((e2?.y ?: 0F) > (e1?.y ?: 0F)) {
+                isDrawWeek = false
+                //下滑
+                if (Math.abs(mScrollY) <= lineHeight * (selectLine - 1) && mContentScrollY==0F) {
+                    isTopScrollToBottom = true
+                    calenderType = CalenderType.TYPE_TRANSLATION
+                    translateY = -mScrollY
+                    mScrollDistance = 0F
+                    invalidate()
                     requestLayout()
-                    //移动内容
-                }
-            }else{
-                //需要滑动内容
-                Log.e("TAG", "onScroll allChildHeight > realHeight ===== ${allChildHeight > realHeight}))")
-                if (allChildHeight > realHeight) {
-                    Log.e("TAG", "onScroll mContentScrollY ===== $mContentScrollY")
-                    mContentScrollY -= 3*distanceY
-                    isNeedScrollContent = true
-                    if (mContentScrollY <= 0 && Math.abs(mContentScrollY) >= allChildHeight - realHeight + lineHeight) {
-                        mContentScrollY = -allChildHeight + realHeight.toFloat() - lineHeight
-//                        isNeedScrollContent = false
-                    }
-                    if (mContentScrollY > 0 && (e2?.y ?: 0F) > (e1?.y ?: 0F)) {
-                        //向下
-                        mContentScrollY = 0F
-                        isNeedScrollContent = false
-                        mScrollY = lineHeight * (curWeekNum).toFloat()
-                        translateY = -lineHeight * (selectLine - 1).toFloat()
-                        isDrawWeek = false
+                } else if (Math.abs(mScrollY) > lineHeight * (selectLine - 1) &&
+                    Math.abs(mScrollY) <= lineHeight * (curWeekNum-1) && mContentScrollY == 0.0F
+                ) {
 
+                    isTopScrollToBottom = true
+                    calenderType = CalenderType.TYPE_EXPAND
+                    translateY = -lineHeight * (selectLine - 1).toFloat()
+                    if (selectLine == curWeekNum) {
+                        mScrollDistance = 0F
+                    } else {
+                        mScrollDistance =
+                            -(mScrollY - lineHeight * (selectLine - 1)) / (curWeekNum - selectLine)
+                    }
+                    if (Math.abs(mScrollDistance) > lineHeight) {
                         mScrollDistance = -lineHeight.toFloat()
-                        Log.e("TAG", "onAnimationStart: isNeedScrollContent = false 1")
                     }
                     invalidate()
                     requestLayout()
+
                 } else {
-                    mContentScrollY -= 0
-                    isNeedScrollContent = false
-                    Log.e("TAG", "onAnimationStart: isNeedScrollContent = false 2")
+                    isDrawWeek = true
+                    isTopScrollToBottom = null
+                    calenderType = CalenderType.TYPE_SCROLL_CONTENT
+                    translateY = -lineHeight * (selectLine - 1).toFloat()
+                    mScrollDistance = -lineHeight.toFloat()
+                    mContentScrollY -= distanceY
+                    if (mContentScrollY > 0F) {
+                        mContentScrollY = 0F
+                        mScrollY = (curWeekNum - 1) * lineHeight.toFloat();
+                    }
+                    invalidate()
+                    requestLayout()
+
+                }
+            } else {
+                //上滑
+                isDrawWeek = false
+                if (Math.abs(mScrollY) <= lineHeight * (selectLine - 1)&& mContentScrollY==0F) {
+                    isTopScrollToBottom = false
+                    //做平移操作
+                    calenderType = CalenderType.TYPE_TRANSLATION
+                    translateY = -mScrollY
+                    mScrollDistance = 0F
+                    invalidate()
+                    requestLayout()
+                } else if (Math.abs(mScrollY) > lineHeight * (selectLine - 1) &&
+                    Math.abs(mScrollY) <= lineHeight * (curWeekNum -1) && mContentScrollY==0F
+                ) {
+                    calenderType = CalenderType.TYPE_COLLAPSE
+                    translateY = -lineHeight * (selectLine - 1).toFloat()
+                    if (selectLine == curWeekNum) {
+                        mScrollDistance = 0F
+                    } else {
+                        mScrollDistance =
+                            -(mScrollY - lineHeight * (selectLine - 1)) / (curWeekNum - selectLine)
+                    }
+                    isTopScrollToBottom = false
+                    invalidate()
+                    requestLayout()
+                } else {
+                    isDrawWeek = true
+                    isTopScrollToBottom = null
+                    calenderType = CalenderType.TYPE_SCROLL_CONTENT
+                    translateY = -lineHeight * (selectLine - 1).toFloat()
+                    mScrollDistance = -lineHeight.toFloat()
+                    mContentScrollY -= distanceY
+                    if (mContentScrollY > 0F) {
+                        mContentScrollY = 0F
+                        mScrollY = (curWeekNum - 1) * lineHeight.toFloat();
+                    }
+                    if (Math.abs(mContentScrollY) > allChildHeight - realHeight - lineHeight) {
+                        mContentScrollY = -(allChildHeight - realHeight - lineHeight).toFloat()
+                    }
+                    invalidate()
+                    requestLayout()
                 }
             }
-
-        } else if ((Math.abs(distanceX) > Math.abs(distanceY) && isHorizontal == null
-                    && Math.abs(distanceX) > minTouchSlop) || isHorizontal == true
-        ) {
+        } else if (isHorizontal == true) {
+            isTopScrollToBottom = null
             var canMove = false
             if (!isDrawWeek) {
                 if (((e2?.y) ?: 0F) < tempHeight.toFloat() && ((e1?.y)
@@ -1185,8 +1170,8 @@ class CustomMonthView3(context: Context?, attrs: AttributeSet?) : ViewGroup(cont
                 if (mScrollX > screenWidth) {
                     mScrollX = screenWidth.toFloat()
                 }
-                requestLayout()
                 invalidate()
+                requestLayout()
             }
         }
         return true

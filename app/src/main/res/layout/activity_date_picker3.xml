@@ -29,13 +29,12 @@
             android:background="@color/FFF8F8F8"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="vertical"
-            android:paddingHorizontal="16dp">
+            android:orientation="vertical">
 
             <TextView
                 android:id="@+id/tv_date_content"
                 android:layout_width="match_parent"
-                android:layout_height="match_parent"
+                android:layout_height="wrap_content"
                 android:layout_weight="1"
                 android:text="请选择日期"
                 android:textColor="@android:color/black"
@@ -43,7 +42,7 @@
 
             <TextView
                 android:layout_width="match_parent"
-                android:layout_height="match_parent"
+                android:layout_height="wrap_content"
                 android:layout_weight="1"
                 android:text="
                 请选择日期请选择日期请选择日期请选择日期请选择日期
@@ -173,8 +172,7 @@
 请选择日期请选择日期请选择日期请选择日期请选择日期
 请选择日期请选择日期请选择日期请选择日期请选择日期
 请选择日期请选择日期请选择日期请选择日期请选择日期
-请选择日期请选择日期请选择日期请选择日期请选择日期
-"
+请选择日期请选择日期请选择日期请选择日期请选择日期"
                 android:textColor="@android:color/black"
                 android:textSize="16sp" />
 
