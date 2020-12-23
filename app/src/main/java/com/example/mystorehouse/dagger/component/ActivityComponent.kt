@@ -29,4 +29,5 @@ interface ActivityComponent {
     fun inject(datePickerActivity: DatePickerActivity)
     fun inject(datePickerActivity2: DatePickerActivity2)
     fun inject(datePickerActivity3: DatePickerActivity3)
+    fun inject(datePickerActivity4: DatePickerActivity4)
 }

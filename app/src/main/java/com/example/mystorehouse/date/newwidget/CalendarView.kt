@@ -10,7 +10,6 @@ import android.util.AttributeSet
 import android.util.Log
 import android.view.*
 import android.view.animation.AccelerateDecelerateInterpolator
-import android.widget.LinearLayout
 import com.blankj.utilcode.util.ScreenUtils
 import com.example.mystorehouse.R
 import com.example.mystorehouse.date.Utils
@@ -26,7 +25,7 @@ import java.util.*
  *     Desc   :
  *     PackageName: com.example.mystorehouse.date.newwidget
  */
-class CustomMonthView3(context: Context?, attrs: AttributeSet?) : ViewGroup(context, attrs),
+class CalendarView(context: Context?, attrs: AttributeSet?) : ViewGroup(context, attrs),
     GestureDetector.OnGestureListener {
 
     private var gestureDetector: GestureDetector = GestureDetector(context, this)

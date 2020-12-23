@@ -1,3 +1,6 @@
 <resources>
     <string name="app_name">MyStoreHouse</string>
+    <string name="calenderBehavior">com.example.mystorehouse.date.behavior.CalendarBehavior</string>
+    <string name="behavior_recyclerview">com.example.mystorehouse.date.behavior.RecyclerViewBehavior</string>
+    <string name="behavior_sample_header">com.example.mystorehouse.date.behavior.SampleHeaderBehavior</string>
 </resources>

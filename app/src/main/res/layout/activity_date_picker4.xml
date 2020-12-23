@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.coordinatorlayout.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:orientation="vertical">
+
+    <com.example.mystorehouse.date.newwidget.CalendarView2
+        android:id="@+id/calendar_view2"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        />
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/my_list"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:layout_behavior=".date.behavior.CalendarBehavior" />
+
+<!--    <TextView-->
+<!--        android:id="@+id/header"-->
+<!--        android:layout_width="match_parent"-->
+<!--        android:layout_height="200dp"-->
+<!--        android:background="#ff0000"-->
+<!--        android:gravity="center"-->
+<!--        android:text="Hello World"-->
+<!--        android:textColor="#ffffff"-->
+<!--        android:textSize="18sp"-->
+<!--        app:layout_behavior="com.google.android.material.appbar.AppBarLayout$ScrollingViewBehavior" />-->
+
+<!--    <androidx.recyclerview.widget.RecyclerView-->
+<!--        android:id="@+id/my_list"-->
+<!--        android:layout_width="match_parent"-->
+<!--        app:layout_behavior=".date.behavior.SampleHeaderBehavior"-->
+<!--        android:layout_height="wrap_content" />-->
+
+
+</androidx.coordinatorlayout.widget.CoordinatorLayout>
