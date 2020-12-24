@@ -3,12 +3,18 @@ package com.example.mystorehouse.date.newwidget
 import android.animation.Animator
 import android.animation.ValueAnimator
 import android.content.Context
-import android.graphics.*
+import android.graphics.Canvas
+import android.graphics.Color
+import android.graphics.Paint
+import android.graphics.RectF
 import android.os.Build
 import android.text.TextPaint
 import android.util.AttributeSet
 import android.util.Log
-import android.view.*
+import android.view.GestureDetector
+import android.view.MotionEvent
+import android.view.ViewConfiguration
+import android.view.ViewGroup
 import android.view.animation.AccelerateDecelerateInterpolator
 import com.blankj.utilcode.util.ScreenUtils
 import com.example.mystorehouse.R
@@ -56,7 +62,6 @@ class CalendarView(context: Context?, attrs: AttributeSet?) : ViewGroup(context,
     var padding6 = dpToPx(6)
     var height14 = dpToPx(14)
     var height10 = dpToPx(10)
-    var raduis4 = dpToPx(4)
 
     //阳历
     var solarDayFontMetrics: Paint.FontMetrics
@@ -100,13 +105,9 @@ class CalendarView(context: Context?, attrs: AttributeSet?) : ViewGroup(context,
 
     //变化范围0-lineheight 负值
     var mScrollDistance = 0F
-    var isScroll = false
-    var isCollapse = false
     var isExpand = false
     var isDrawWeek = false
     var isTranslate = false
-    var isCollapseOver = false
-    var isNeedScrollContent = false
     var isTopScrollToBottom: Boolean? = null
 
     //是否是水平方向滑动
@@ -128,7 +129,6 @@ class CalendarView(context: Context?, attrs: AttributeSet?) : ViewGroup(context,
     var whiteBcPaint = Paint()
 
     var calenderType: String = CalenderType.TYPE_TRANSLATION
-    var lastCalenderType: String = CalenderType.TYPE_TRANSLATION
 
     init {
         //初始化月
@@ -412,7 +412,6 @@ class CalendarView(context: Context?, attrs: AttributeSet?) : ViewGroup(context,
             }
 
             override fun onAnimationStart(animation: Animator?) {
-                isNeedScrollContent = false
                 isAnimatorStart = true
             }
         })
@@ -445,7 +444,6 @@ class CalendarView(context: Context?, attrs: AttributeSet?) : ViewGroup(context,
             }
 
             override fun onAnimationStart(animation: Animator?) {
-                isNeedScrollContent = false
                 isAnimatorStart = true
                 Log.e("TAG", "onAnimationStart: isNeedScrollContent = false 0")
             }
@@ -469,7 +467,6 @@ class CalendarView(context: Context?, attrs: AttributeSet?) : ViewGroup(context,
             invalidate()
         }
 
-        isCollapse = false
         collapseAnimator?.addListener(object : Animator.AnimatorListener {
             override fun onAnimationRepeat(animation: Animator?) {
             }
@@ -483,11 +480,7 @@ class CalendarView(context: Context?, attrs: AttributeSet?) : ViewGroup(context,
                 mScrollDistance = -(lineHeight).toFloat()
                 invalidate()
                 requestLayout()
-                isCollapseOver = true
-                isNeedScrollContent = true
                 isAnimatorStart = false
-//                startDrawWeek()
-//                mScrollY = lineHeight * curWeekNum.toFloat()
             }
 
             override fun onAnimationCancel(animation: Animator?) {
@@ -914,7 +907,6 @@ class CalendarView(context: Context?, attrs: AttributeSet?) : ViewGroup(context,
     }
 
     override fun onSingleTapUp(event: MotionEvent?): Boolean {
-        isScroll = false
         //计算出点击区域
         if (isDrawWeek) {
             if (((event?.x ?: 0F) <= screenWidth) && (event?.y ?: 0F) < lineHeight) {
@@ -984,7 +976,6 @@ class CalendarView(context: Context?, attrs: AttributeSet?) : ViewGroup(context,
             }
             if (mContentScrollY > 0) {
                 mContentScrollY = 0F
-                isNeedScrollContent = false
                 mScrollY = lineHeight * (curWeekNum-1).toFloat()
                 translateY = -lineHeight * (selectLine - 1).toFloat()
                 mScrollDistance = -(lineHeight).toFloat()

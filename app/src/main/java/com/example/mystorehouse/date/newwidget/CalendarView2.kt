@@ -31,7 +31,7 @@ class CalendarView2(context: Context?, attrs: AttributeSet?) : ViewGroup(context
     private var gestureDetector: GestureDetector = GestureDetector(context, this)
     private var selectLine: Int = 1
 
-    //在1-selectLine之间的距离
+    //平移的距离 负值
     private var translateY: Float = 0F
     private var minTouchSlop = ViewConfiguration.get(context).scaledTouchSlop
 
@@ -56,6 +56,7 @@ class CalendarView2(context: Context?, attrs: AttributeSet?) : ViewGroup(context
     var padding6 = dpToPx(6)
     var height14 = dpToPx(14)
     var height10 = dpToPx(10)
+    var raduis4 = dpToPx(4)
 
     //阳历
     var solarDayFontMetrics: Paint.FontMetrics
@@ -122,7 +123,6 @@ class CalendarView2(context: Context?, attrs: AttributeSet?) : ViewGroup(context
     var whiteBcPaint = Paint()
 
     var calenderType: String = CalenderType.TYPE_TRANSLATION
-    var lastCalenderType: String = CalenderType.TYPE_TRANSLATION
 
     init {
         //初始化月
@@ -560,12 +560,7 @@ class CalendarView2(context: Context?, attrs: AttributeSet?) : ViewGroup(context
                 MeasureSpec.AT_MOST
             )
         }
-//        super.onMeasure(this.widthMeasureSpec, this.heightMeasureSpec)
-        super.onMeasure(widthMeasureSpec, heightMeasureSpec)
-    }
-
-    override fun onDraw(canvas: Canvas?) {
-        super.onDraw(canvas)
+        super.onMeasure(this.widthMeasureSpec, this.heightMeasureSpec)
     }
 
     override fun dispatchDraw(canvas: Canvas?) {
@@ -616,7 +611,7 @@ class CalendarView2(context: Context?, attrs: AttributeSet?) : ViewGroup(context
         offsetX: Int,
         monthDays: MutableList<MonthEntity>
     ) {
-        Log.e("TAG", "onDrawMonth: " + measuredHeight)
+        Log.e("TAG", "onDrawMonth: ")
         for (column in weekNum downTo 1) {
             //倒序画周
             drawY = (lineHeight / 2 + (column - 1) * lineHeight) + translateY.toInt()
@@ -1184,5 +1179,21 @@ class CalendarView2(context: Context?, attrs: AttributeSet?) : ViewGroup(context
             return lineHeight
         }
         return lineHeight*curWeekNum;
+    }
+
+    fun refreshScrollY(mScrollY: Int) {
+        Log.e("TAG", "refreshScrollY: "+mScrollY)
+    }
+
+    fun getViewShowHeight(): Float {
+        if(calenderType == CalenderType.TYPE_TRANSLATION){
+            return curWeekNum*lineHeight + translateY
+        }else if (calenderType == CalenderType.TYPE_COLLAPSE || calenderType == CalenderType.TYPE_EXPAND){
+            return curWeekNum*lineHeight + translateY + (mScrollDistance*(curWeekNum-selectLine))
+        }else if (calenderType == CalenderType.TYPE_SCROLL_CONTENT){
+            return  lineHeight.toFloat()
+        }else{
+            return curWeekNum*lineHeight.toFloat()
+        }
     }
 }
