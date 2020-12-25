@@ -54,6 +54,8 @@ class MainActivity : BaseEmptyActivity() {
                         5 -> ActivityManager.jump(DatePickerActivity2::class.java)
                         6 -> ActivityManager.jump(DatePickerActivity3::class.java)
                         7 -> ActivityManager.jump(DatePickerActivity4::class.java)
+                        8 -> ActivityManager.jump(NestActivity::class.java)
+                        9 -> ActivityManager.jump(NestActivity2::class.java)
                     }
                 }
             }
@@ -71,6 +73,8 @@ class MainActivity : BaseEmptyActivity() {
         list.add("自定义日历-时间选择2")
         list.add("自定义日历-时间选择3")
         list.add("自定义日历-时间选择4")
+        list.add("nest")
+        list.add("nest2")
         adapter.setList(list)
     }
 }

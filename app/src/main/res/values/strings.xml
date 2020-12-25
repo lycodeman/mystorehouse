@@ -3,4 +3,6 @@
     <string name="calenderBehavior">com.example.mystorehouse.date.behavior.CalendarBehavior</string>
     <string name="behavior_recyclerview">com.example.mystorehouse.date.behavior.RecyclerViewBehavior</string>
     <string name="behavior_sample_header">com.example.mystorehouse.date.behavior.SampleHeaderBehavior</string>
+    <string name="bottomBehavior">com.example.mystorehouse.date.behavior.BottomBehavior</string>
+    <string name="headerBehavior">com.example.mystorehouse.date.behavior.HeaderBehavior</string>
 </resources>

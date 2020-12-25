@@ -3,6 +3,7 @@ package com.example.mystorehouse.date.behavior
 import android.content.Context
 import android.util.AttributeSet
 import android.util.Log
+import android.view.MotionEvent
 import android.view.View
 import androidx.coordinatorlayout.widget.CoordinatorLayout
 import androidx.core.view.ViewCompat
@@ -22,7 +23,7 @@ class CalenderViewBehavior(context: Context?, attrs: AttributeSet?) :
     CoordinatorLayout.Behavior<CalendarView2>(context, attrs) {
     // 列表顶部和title底部重合时，列表的滑动距离。
     private var deltaY = 0f
-
+    private var mLastY = 0
 
     override fun layoutDependsOn(
         parent: CoordinatorLayout,
@@ -40,20 +41,34 @@ class CalenderViewBehavior(context: Context?, attrs: AttributeSet?) :
         if (deltaY === 0F) {
             deltaY = dependency.y - child.height
         }
-            child.translationY = dpToPx(78.5F)
+        child.translationY = dpToPx(78.5F)
         return true
     }
 
-    override fun onStartNestedScroll(
+    override fun onNestedPreFling(
         coordinatorLayout: CoordinatorLayout,
         child: CalendarView2,
-        directTargetChild: View,
         target: View,
-        axes: Int,
-        type: Int
+        velocityX: Float,
+        velocityY: Float
     ): Boolean {
-        Log.e("TAG", "onStartNestedScroll: "+child.scrollY)
         return false
     }
 
+    override fun onTouchEvent(
+        parent: CoordinatorLayout,
+        child: CalendarView2,
+        ev: MotionEvent
+    ): Boolean {
+        when (ev.action) {
+            MotionEvent.ACTION_DOWN -> mLastY = ev.rawY.toInt()
+            MotionEvent.ACTION_MOVE -> {
+                val y = ev.rawY.toInt()
+//                child.translationY = child.translationY + y - mLastY
+                child.refreshScrollY(y - mLastY, y < mLastY)
+                mLastY = y
+            }
+        }
+        return true
+    }
 }

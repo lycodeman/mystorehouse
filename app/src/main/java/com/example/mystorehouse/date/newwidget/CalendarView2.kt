@@ -1181,8 +1181,68 @@ class CalendarView2(context: Context?, attrs: AttributeSet?) : ViewGroup(context
         return lineHeight*curWeekNum;
     }
 
-    fun refreshScrollY(mScrollY: Int) {
-        Log.e("TAG", "refreshScrollY: "+mScrollY)
+    fun refreshScrollY(scrollY: Int,isScrollUp: Boolean) {
+        Log.e("TAG", "refreshScrollY: "+scrollY)
+        if (scrollY<=lineHeight*(curWeekNum-1)){
+            if (isScrollUp){
+                //上滑
+                isDrawWeek = false
+                if (Math.abs(scrollY) <= lineHeight * (selectLine - 1)) {
+                    isTopScrollToBottom = false
+                    //做平移操作
+                    calenderType = CalenderType.TYPE_TRANSLATION
+                    translateY = -scrollY.toFloat()
+                    mScrollDistance = 0F
+                    invalidate()
+                    requestLayout()
+                } else if (Math.abs(scrollY) > lineHeight * (selectLine - 1) &&
+                Math.abs(scrollY) <= lineHeight * (curWeekNum -1)
+                ) {
+                    calenderType = CalenderType.TYPE_COLLAPSE
+                    translateY = -lineHeight * (selectLine - 1).toFloat()
+                    if (selectLine == curWeekNum) {
+                        mScrollDistance = 0F
+                    } else {
+                        mScrollDistance =
+                            -(scrollY.toFloat() - lineHeight * (selectLine - 1)) / (curWeekNum - selectLine)
+                    }
+                    isTopScrollToBottom = false
+                    invalidate()
+                    requestLayout()
+                }else{
+                    isDrawWeek = true
+                }
+            }else{
+                isDrawWeek = false
+                if (Math.abs(scrollY) <= lineHeight * (selectLine - 1)) {
+                    isTopScrollToBottom = true
+                    calenderType = CalenderType.TYPE_TRANSLATION
+                    translateY = -scrollY.toFloat()
+                    mScrollDistance = 0F
+                    invalidate()
+                    requestLayout()
+                } else if (Math.abs(scrollY) > lineHeight * (selectLine - 1) &&
+                    Math.abs(scrollY) <= lineHeight * (curWeekNum-1)) {
+                    isTopScrollToBottom = true
+                    calenderType = CalenderType.TYPE_EXPAND
+                    translateY = -lineHeight * (selectLine - 1).toFloat()
+                    if (selectLine == curWeekNum) {
+                        mScrollDistance = 0F
+                    } else {
+                        mScrollDistance =
+                            -(scrollY.toFloat() - lineHeight * (selectLine - 1)) / (curWeekNum - selectLine)
+                    }
+                    if (Math.abs(mScrollDistance) > lineHeight) {
+                        mScrollDistance = -lineHeight.toFloat()
+                    }
+                    invalidate()
+                    requestLayout()
+                }else{
+
+                }
+            }
+
+        }
     }
 
     fun getViewShowHeight(): Float {
@@ -1195,5 +1255,38 @@ class CalendarView2(context: Context?, attrs: AttributeSet?) : ViewGroup(context
         }else{
             return curWeekNum*lineHeight.toFloat()
         }
+    }
+
+    fun getScrollHeight(): Int {
+        return lineHeight*(curWeekNum-1)
+    }
+
+    fun stopScroll() {
+//        val event = MotionEvent.
+            Log.e("TAG", "onTouchEvent: isTopScrollToBottom "+isTopScrollToBottom )
+            Log.e("TAG", "onTouchEvent: calenderType "+calenderType )
+            if (isTopScrollToBottom == true) {
+                if(calenderType == CalenderType.TYPE_TRANSLATION){
+                    isTranslate = false
+                    startExpandAnimator()
+                }else if(calenderType == CalenderType.TYPE_EXPAND){
+                    isTranslate = true
+                    startExpandAnimator()
+                }else if(calenderType == CalenderType.TYPE_SCROLL_CONTENT){
+
+                }
+            } else if (isTopScrollToBottom == false) {
+                if(calenderType == CalenderType.TYPE_TRANSLATION){
+                    isTranslate = true
+                    startCollapseAnimator()
+                }else if(calenderType == CalenderType.TYPE_COLLAPSE){
+                    isTranslate = false
+                    startCollapseAnimator()
+                }else if(calenderType == CalenderType.TYPE_SCROLL_CONTENT){
+
+                }
+            } else {
+
+            }
     }
 }

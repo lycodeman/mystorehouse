@@ -91,11 +91,14 @@ class DatePickerActivity4 : BaseEmptyActivity() {
 
     override fun initListener() {
         super.initListener()
+//        my_list.setOnTouchListener { v, event ->
+////            if (eve)
+//        }
         my_list.addOnScrollListener(object : RecyclerView.OnScrollListener(){
 
             override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
                 super.onScrolled(recyclerView, dx, dy)
-                Log.e("TAG", "onScrolled:dy= "+dy )
+//                Log.e("TAG", "onScrolled:dy= "+dy )
             }
 
             override fun onScrollStateChanged(recyclerView: RecyclerView, newState: Int) {

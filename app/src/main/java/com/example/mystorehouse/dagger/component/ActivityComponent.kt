@@ -30,4 +30,6 @@ interface ActivityComponent {
     fun inject(datePickerActivity2: DatePickerActivity2)
     fun inject(datePickerActivity3: DatePickerActivity3)
     fun inject(datePickerActivity4: DatePickerActivity4)
+    fun inject(nestActivity: NestActivity)
+    fun inject(nestActivity2: NestActivity2)
 }
