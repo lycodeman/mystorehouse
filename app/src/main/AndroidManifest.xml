@@ -47,7 +47,7 @@
         <activity android:name=".download.DownLoadActivity" />
         <activity android:name=".DatePickerActivity" />
         <activity android:name=".DatePickerActivity2" />
-        <activity android:name=".DatePickerActivity3" />
+        <activity android:name=".DatePickerActivity3" android:theme="@style/Theme.AppCompat.Light.NoActionBar"/>
         <activity android:name=".DatePickerActivity4" />
     </application>
 

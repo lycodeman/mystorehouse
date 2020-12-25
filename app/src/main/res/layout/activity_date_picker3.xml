@@ -23,7 +23,7 @@
     <com.example.mystorehouse.date.newwidget.CalendarView
         android:id="@+id/custom_month_view"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content">
+        android:layout_height="match_parent">
 
         <LinearLayout
             android:background="@color/FFF8F8F8"

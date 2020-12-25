@@ -89,7 +89,9 @@ class CalendarView(context: Context?, attrs: AttributeSet?) : ViewGroup(context,
     var widthMeasureSpec: Int = 0
     var heightMeasureSpec: Int = 0
     var tempHeight: Int = 0
-    var realHeight = 0
+    var screenHeight = ScreenUtils.getScreenHeight()
+    var statusBarHeight = me.jessyan.autosize.utils.ScreenUtils.getStatusBarHeight()
+    var realHeight = screenHeight - statusBarHeight - dpToPx(128.5F)
 
     var dy = 0f
     var raduis = dpToPx(4)
@@ -130,6 +132,7 @@ class CalendarView(context: Context?, attrs: AttributeSet?) : ViewGroup(context,
 
     var calenderType: String = CalenderType.TYPE_TRANSLATION
 
+
     init {
         //初始化月
         initMonthDays();
@@ -160,6 +163,7 @@ class CalendarView(context: Context?, attrs: AttributeSet?) : ViewGroup(context,
         whiteBcPaint.setColor(Color.WHITE)
         whiteBcRect =
             RectF(-screenWidth.toFloat(), 0F, 2 * screenWidth.toFloat(), lineHeight.toFloat())
+
     }
 
     private fun resetSelectLine() {
@@ -528,10 +532,10 @@ class CalendarView(context: Context?, attrs: AttributeSet?) : ViewGroup(context,
     }
 
     override fun onMeasure(widthMeasureSpec: Int, heightMeasureSpec: Int) {
-        if (realHeight == 0) {
-            realHeight = MeasureSpec.getSize(heightMeasureSpec)
-            Log.e("TAG", "onMeasure: realHeight = " + realHeight)
-        }
+//        if (realHeight == 0) {
+//            realHeight = MeasureSpec.getSize(heightMeasureSpec)
+//            Log.e("TAG", "onMeasure: realHeight = " + realHeight)
+//        }
         this.widthMeasureSpec = MeasureSpec.makeMeasureSpec(
             screenWidth,
             MeasureSpec.AT_MOST
@@ -561,7 +565,7 @@ class CalendarView(context: Context?, attrs: AttributeSet?) : ViewGroup(context,
             )
         } else {
             this.heightMeasureSpec = MeasureSpec.makeMeasureSpec(
-                realHeight,
+                realHeight.toInt(),
                 MeasureSpec.AT_MOST
             )
         }
@@ -886,16 +890,17 @@ class CalendarView(context: Context?, attrs: AttributeSet?) : ViewGroup(context,
 
                         childAt.layout(
                             0,
-                            tempHeight + mContentScrollY.toInt()
-                            ,
+                            tempHeight + mContentScrollY.toInt(),
                             screenWidth,
                             tempHeight + childAt.measuredHeight + mContentScrollY.toInt()
                         )
                     } else {
                         childAt.layout(
-                            0, -lineHeight+ mContentScrollY.toInt(), screenWidth,
-                            childAt.measuredHeight - lineHeight +  mContentScrollY.toInt()
+                            0, lineHeight+mContentScrollY.toInt(), screenWidth,
+                            realHeight.toInt()+lineHeight
                         )
+                        Log.e("TAG", "onLayout:childAt.measuredHeight "+childAt.measuredHeight )
+                        Log.e("TAG", "onLayout:childAt.mContentScrollY "+mContentScrollY )
                     }
                 }
             }
@@ -966,13 +971,14 @@ class CalendarView(context: Context?, attrs: AttributeSet?) : ViewGroup(context,
         velocityY: Float
     ): Boolean {
         if (calenderType == CalenderType.TYPE_SCROLL_CONTENT && isHorizontal == false){
+            Log.e("TAG", "onFling: " )
             var lastContentScrollY = mContentScrollY
             mContentScrollY += ((e2?.y ?: 0F) - (e1?.y ?: 0F))
             if (mContentScrollY < 0 && Math.abs(mContentScrollY) >= allChildHeight - realHeight + lineHeight) {
-                mContentScrollY = -allChildHeight + realHeight.toFloat() - lineHeight
+                mContentScrollY = -allChildHeight + realHeight-lineHeight.toFloat()
             }
-            if (Math.abs(mContentScrollY) > allChildHeight - realHeight - lineHeight) {
-                mContentScrollY = -(allChildHeight - realHeight - lineHeight).toFloat()
+            if (Math.abs(mContentScrollY) > allChildHeight - realHeight +lineHeight) {
+                mContentScrollY = -(allChildHeight - realHeight+lineHeight).toFloat()
             }
             if (mContentScrollY > 0) {
                 mContentScrollY = 0F
@@ -1118,16 +1124,21 @@ class CalendarView(context: Context?, attrs: AttributeSet?) : ViewGroup(context,
                 } else {
                     isDrawWeek = true
                     isTopScrollToBottom = null
+                    if(calenderType == CalenderType.TYPE_COLLAPSE){
+                        mContentScrollY = mScrollY + (lineHeight*(curWeekNum-1))
+                    }else{
+                        mContentScrollY -= distanceY
+                    }
                     calenderType = CalenderType.TYPE_SCROLL_CONTENT
                     translateY = -lineHeight * (selectLine - 1).toFloat()
                     mScrollDistance = -lineHeight.toFloat()
-                    mContentScrollY -= distanceY
+
                     if (mContentScrollY > 0F) {
                         mContentScrollY = 0F
                         mScrollY = (curWeekNum - 1) * lineHeight.toFloat();
                     }
-                    if (Math.abs(mContentScrollY) > allChildHeight - realHeight - lineHeight) {
-                        mContentScrollY = -(allChildHeight - realHeight - lineHeight).toFloat()
+                    if (Math.abs(mContentScrollY) > allChildHeight - realHeight + lineHeight) {
+                        mContentScrollY = -(allChildHeight - realHeight+lineHeight).toFloat()
                     }
                     invalidate()
                     requestLayout()
